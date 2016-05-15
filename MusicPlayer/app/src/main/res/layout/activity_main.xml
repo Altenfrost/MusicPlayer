@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    >
+    <ImageView
+        android:id="@+id/main_icon"
+        android:src="@drawable/spotify"
+        android:scaleType="centerInside"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/main_icon"
+        >
+
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            >
+
+            <Button
+                android:id="@+id/music_button"
+
+                android:text="@string/music_catalog"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/main_menu_button_shape"
+                android:layout_centerHorizontal="true"
+                />
+
+            <Button
+                android:id="@+id/playlist_button"
+
+                android:text="@string/playlist_catalog"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:gravity="center"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/main_menu_button_shape"
+                android:layout_below="@+id/music_button"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp" />
+
+            <Button
+                android:id="@+id/exit_button"
+
+                android:text="@string/exit"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:gravity="center"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/main_menu_button_shape"
+                android:layout_below="@+id/playlist_button"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp" />
+
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

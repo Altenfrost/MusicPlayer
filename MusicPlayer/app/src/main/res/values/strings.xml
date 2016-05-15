@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+    <string name="action_settings">Settings</string>
+    <string name="music_catalog">Moja muzyka</string>
+    <string name="playlist_catalog">Moje playlisty</string>
+    <string name="exit">Wyjdź</string>
+    <string name="play">►</string>
+    <string name="pause">❚❚</string>
+    <string name="next">⏩</string>
+    <string name="back">⏪</string>
+    <string name="next_song">&gt;|</string>
+    <string name="previous_song">|&lt;</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

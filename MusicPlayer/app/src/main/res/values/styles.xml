@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat">
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="SongDuration" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/colorDuration</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+    <style name="SongTitle" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/colorSongTitle</item>
+        <item name="android:textAlignment">textStart</item>
+    </style>
+
+
+
+</resources>
