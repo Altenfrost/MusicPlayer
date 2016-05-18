@@ -28,27 +28,27 @@ public class SongAdapter extends BaseAdapter {
         this.songList = songList;
     }
 
+    public List<Song> getSongList() {
+        return songList;
+    }
+
     @Override
     public int getCount() {
-        System.out.println("ADAPTER ILOSC ELEMENTOW:"+songList.size());
         return songList.size();
     }
 
     @Override
     public Song getItem(int position) {
-        System.out.println("PYTANIE O POZYCJE W ADAPTERZE NUMER:"+position);
         return songList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        System.out.println("PYTANIE O ID W ADAPTERZE NUMER:"+position);
         return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        System.out.println("PYTANIE O WIDOK W ADAPTERZE NUMER:"+position);
         final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -71,7 +71,6 @@ public class SongAdapter extends BaseAdapter {
         } else {
             viewHolder.songPhoto.setImageBitmap(song.getAlbumPhoto());
         }
-        System.out.println("TYTUL PIOSENKI ZAPYTANEJ W ADAPTERZE TO:"+song.getTitle());
 
         viewHolder.songTitle = (TextView) songView.findViewById(R.id.song_title);
         viewHolder.songTitle.setText(song.getTitle());

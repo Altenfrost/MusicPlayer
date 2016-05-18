@@ -11,12 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 public class SongPlayerFragment extends Fragment implements View.OnClickListener {
     private OnSongActionListener onSongActionListener;
     private Song songToPlay;
+    private ImageView songAlbum;
     private Button playButton, nextSongButton, previousSongButton, forwardButton, backButton;
     private SeekBar songSeekBar;
     private final int SKIP_VALUE = 5000;
@@ -33,8 +35,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_song_player, container, false);
 
-        songToPlay = onSongActionListener.getActualSong();
-        songPlayer = MediaPlayer.create(getActivity().getApplicationContext(), songToPlay.getFileUri());
 
         return relativeLayout;
     }
@@ -72,10 +72,15 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        songToPlay = onSongActionListener.getActualSong();
+        songPlayer = MediaPlayer.create(getContext(), songToPlay.getFileUri());
         initializeControls();
+        songAlbum.setImageResource(R.drawable.album_art_default);
+
     }
 
     private void initializeControls() {
+        songAlbum = (ImageView) getView().findViewById(R.id.song_player_image);
         playButton = (Button) getView().findViewById(R.id.play_button);
         nextSongButton = (Button) getView().findViewById(R.id.next_song_button);
         previousSongButton = (Button) getView().findViewById(R.id.previous_song_button);

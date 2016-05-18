@@ -27,9 +27,6 @@
             android:name=".PlaylistActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".SongPlayerActivity"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".MusicGroupActivity"
             android:theme="@style/AppTheme" />
 

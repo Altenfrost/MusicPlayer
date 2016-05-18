@@ -30,7 +30,6 @@ public class Song implements Parcelable {
         this.author = author;
         this.album = album;
         this.fileUri = fileUri;
-        System.out.println("Aktualna sciezka:"+path);
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(path);

@@ -23,7 +23,15 @@ public class MainMenuActivity extends AppCompatActivity {
                 goTo(MusicGroupActivity.class);
             }
         });
-
+        /*Button exitButton = (Button) findViewById(R.id.exit_button);
+        exitButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                System.exit(0);
+            }
+        });
+*/
 
     }
 

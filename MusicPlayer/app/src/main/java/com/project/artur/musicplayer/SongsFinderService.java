@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 
@@ -13,14 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SongsFinderService extends Service {
-    final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-    final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-    final String[] projection = { MediaStore.Audio.Media._ID,
+    private final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+    private final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+    private final String[] projection = {MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DURATION};
 
     private final IBinder songsBinder = new LocalSongBinder();
+
+    private List<Song> songsFound;
 
     public class LocalSongBinder extends Binder {
         SongsFinderService getService() {
@@ -34,52 +35,58 @@ public class SongsFinderService extends Service {
     public SongsFinderService() {
     }
 
+    public void setSongsFound(List<Song> songsFound) {
+        this.songsFound = songsFound;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        System.out.println("ZWRACAM BIND");
         return songsBinder;
     }
 
-    public List<Song> getSongsList() {
-        List<Song> songsFound = new ArrayList<>();
-        System.out.println("ZACZYNAMY SZUKAC W SERWISIE");
-                Cursor cursor = getContentResolver().query(uri,
-                        projection, selection, null, null);
+    public void getSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
+        if (songsFound == null || songsFound.size() == 0) {
+            System.out.println("Szukam listy");
+            Thread searching = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    songsFound = new ArrayList<>();
+                    Cursor cursor = getContentResolver().query(uri,
+                            projection, selection, null, null);
 
-                if (cursor.getCount() == 0) {
-                    System.out.println("Nie znaleziono żadnej piosenki");
+                    if (cursor.getCount() == 0) {
+                        System.out.println("Nie znaleziono żadnej piosenki");
 
-                } else {
-                    int i = 1;
-                    System.out.println("ILOSC UTWOROW:"+cursor.getCount());
-                    cursor.moveToFirst();
-                    do {
-                        System.out.println(i);
-                        i++;
+                    } else {
 
-                        Uri playableUri
-                                = Uri.withAppendedPath(uri,
-                                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
+                        cursor.moveToFirst();
+                        do {
 
-                        songsFound.add(new Song(
-                                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)),
-                                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)),
-                                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)),
-                                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)),
-                                playableUri,
-                                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                            Uri playableUri
+                                    = Uri.withAppendedPath(uri,
+                                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
 
-                        ));
-                    } while (cursor.moveToNext());
-                    cursor.close();
+                            songsFound.add(new Song(
+                                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)),
+                                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)),
+                                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)),
+                                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)),
+                                    playableUri,
+                                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+
+                            ));
+                        } while (cursor.moveToNext());
+                        cursor.close();
+                        onMusicGroupActionListener.refreshMusicList(songsFound);
+                    }
                 }
-
-
-
-
-
-        return songsFound;
+            });
+            searching.start();
+        } else {
+            System.out.println("LISTA JUŻ WYPELNIONA");
+        }
     }
+
     /*public List<Song> getSongsList() {
         final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;

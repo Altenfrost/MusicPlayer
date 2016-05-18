@@ -61,7 +61,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp" />
 
-            <Button
+            <!--<Button
                 android:id="@+id/exit_button"
 
                 android:text="@string/exit"
@@ -74,7 +74,7 @@
                 android:background="@drawable/main_menu_button_shape"
                 android:layout_below="@+id/playlist_button"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="20dp" />-->
 
 
         </RelativeLayout>
