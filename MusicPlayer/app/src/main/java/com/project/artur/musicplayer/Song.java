@@ -21,7 +21,7 @@ public class Song implements Parcelable {
     private String album;
     private Uri fileUri;
     private int bitRate;
-    private byte[] albumPhotoBytes;
+    private Bitmap albumPhoto;
 
 
     public Song(String songDuration, String title, String author, String album, Uri fileUri, String path) {
@@ -35,10 +35,22 @@ public class Song implements Parcelable {
         metaRetriever.setDataSource(path);
         this.bitRate = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
 
-        this.albumPhotoBytes = metaRetriever.getEmbeddedPicture();
+        byte[] albumPhotoBytes = metaRetriever.getEmbeddedPicture();
 
         metaRetriever.release();
+        if (albumPhotoBytes!=null){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            /*int scale = 1;
+            while(options.outWidth / scale / 2 >= 40 &&
+                    options.outHeight / scale / 2 >= 40) {
+                scale *= 2;
+            }*/
+            options.inJustDecodeBounds = false;
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            options.inDither = true;
 
+            this.albumPhoto = BitmapFactory.decodeByteArray(albumPhotoBytes, 0, albumPhotoBytes.length,options);
+        }
 
     }
 
@@ -60,13 +72,14 @@ public class Song implements Parcelable {
 
     }*/
 
+
     protected Song(Parcel in) {
         title = in.readString();
         author = in.readString();
         album = in.readString();
         fileUri = in.readParcelable(Uri.class.getClassLoader());
         bitRate = in.readInt();
-        albumPhotoBytes = in.createByteArray();
+        albumPhoto = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
@@ -110,26 +123,9 @@ public class Song implements Parcelable {
     }
 
     public Bitmap getAlbumPhoto() {
-        if (this.albumPhotoBytes != null) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            int scale = 1;
-            while(options.outWidth / scale / 2 >= 40 &&
-                    options.outHeight / scale / 2 >= 40) {
-                scale *= 2;
-            }
-            options.inSampleSize = scale;
-            try {
-                Bitmap albumPhoto = BitmapFactory.decodeByteArray(this.albumPhotoBytes, 0, this.albumPhotoBytes.length,options);
-                return albumPhoto;
-            } catch (OutOfMemoryError outOfMemoryError){
-                return null;
-            }
-        } else {
-            return null;
-        }
-
+        return albumPhoto;
     }
+
 
     @Override
     public int describeContents() {
@@ -143,6 +139,6 @@ public class Song implements Parcelable {
         dest.writeString(album);
         dest.writeParcelable(fileUri, flags);
         dest.writeInt(bitRate);
-        dest.writeByteArray(albumPhotoBytes);
+        dest.writeParcelable(albumPhoto, flags);
     }
 }

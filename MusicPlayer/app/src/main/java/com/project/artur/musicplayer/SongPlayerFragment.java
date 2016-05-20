@@ -2,6 +2,7 @@ package com.project.artur.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,12 +16,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
+import static java.lang.Thread.sleep;
+
 public class SongPlayerFragment extends Fragment implements View.OnClickListener {
     private OnSongActionListener onSongActionListener;
     private Song songToPlay;
     private ImageView songAlbum;
     private Button playButton, nextSongButton, previousSongButton, forwardButton, backButton;
     private SeekBar songSeekBar;
+    private Thread updateSeekBar;
     private final int SKIP_VALUE = 5000;
 
     private static MediaPlayer songPlayer;
@@ -34,6 +38,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_song_player, container, false);
+        System.out.println("ON CREATE VIEW IN SONGPLAYER FRAGMENT");
 
 
         return relativeLayout;
@@ -55,27 +60,64 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         super.onDetach();
         onSongActionListener = null;
     }
+
     public interface OnSongActionListener {
         Song getNextSong();
+
         Song getPreviousSong();
+
         Song getActualSong();
         // TODO: Update argument type and name
     }
 
+    public void updateSongInfo(Song newSong) {
+        if (songPlayer != null && songPlayer.isPlaying()) {
+            songPlayer.stop();
+        }
+        songToPlay = newSong;
+        if (songToPlay != null)
+            songPlayer = MediaPlayer.create(getContext(), songToPlay.getFileUri());
+
+        Bitmap mainPhotoDetails = songToPlay.getAlbumPhoto();
+        if (mainPhotoDetails!=null)
+            this.songAlbum.setImageBitmap(songToPlay.getAlbumPhoto());
+        else
+            this.songAlbum.setImageResource(R.drawable.album_art_default);
+
+        updateSeekBar = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int totalDuration = songPlayer.getDuration();
+                int currPosition = 0;
+                songSeekBar.setMax(totalDuration);
+
+                while (currPosition < totalDuration){
+                    try {
+                        sleep(500);
+                        if (songPlayer.isPlaying()){
+                            currPosition = songPlayer.getCurrentPosition();
+                            songSeekBar.setProgress(currPosition);
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("ON CREATE W SONGPLAYER FRAGMENT");
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        songToPlay = onSongActionListener.getActualSong();
-        songPlayer = MediaPlayer.create(getContext(), songToPlay.getFileUri());
         initializeControls();
-        songAlbum.setImageResource(R.drawable.album_art_default);
 
     }
 
@@ -105,6 +147,8 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                     playButton.setText(R.string.play);
                 } else {
                     songPlayer.start();
+                    if (!updateSeekBar.isAlive())
+                        updateSeekBar.start();
 
                     playButton.setText(R.string.pause);
                 }
@@ -116,6 +160,10 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
             case R.id.back_button:
                 songPlayer.seekTo(songPlayer.getCurrentPosition() - SKIP_VALUE);
                 break;
+            case R.id.next_song_button:{
+                updateSongInfo(onSongActionListener.getNextSong());
+                playButton.setText(R.string.play);
+            }
         }
     }
 }

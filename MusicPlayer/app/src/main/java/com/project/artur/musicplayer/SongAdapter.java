@@ -1,6 +1,7 @@
 package com.project.artur.musicplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,9 +18,10 @@ import java.util.List;
  */
 public class SongAdapter extends BaseAdapter {
     private Context context;
-    private List<Song> songList;
+    private static List<Song> songList;
 
     public SongAdapter(Context context, List<Song> songList) {
+
         this.context = context;
         this.songList = songList;
     }
@@ -66,10 +68,11 @@ public class SongAdapter extends BaseAdapter {
 
     private void bindSongToView(Song song, View songView, ViewHolder viewHolder) {
         viewHolder.songPhoto = (ImageView) songView.findViewById(R.id.song_photo);
-        if (song.getAlbumPhoto() == null) {
+        Bitmap mainPhoto = song.getAlbumPhoto();
+        if (mainPhoto == null) {
             viewHolder.songPhoto.setImageResource(R.drawable.album_art_default);
         } else {
-            viewHolder.songPhoto.setImageBitmap(song.getAlbumPhoto());
+            viewHolder.songPhoto.setImageBitmap(mainPhoto);
         }
 
         viewHolder.songTitle = (TextView) songView.findViewById(R.id.song_title);

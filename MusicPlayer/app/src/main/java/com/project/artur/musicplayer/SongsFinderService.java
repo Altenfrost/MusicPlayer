@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SongsFinderService extends Service {
+    private boolean isRunning;
     private final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
     private final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     private final String[] projection = {MediaStore.Audio.Media._ID,
@@ -31,6 +32,11 @@ public class SongsFinderService extends Service {
         }
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+
+    }
 
     public SongsFinderService() {
     }
@@ -41,12 +47,13 @@ public class SongsFinderService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        isRunning = true;
         return songsBinder;
     }
 
-    public void getSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
+    public void findSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
         if (songsFound == null || songsFound.size() == 0) {
-            System.out.println("Szukam listy");
+            System.out.println("WYSZUKIWANIE PIOSENEK");
             Thread searching = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -86,37 +93,4 @@ public class SongsFinderService extends Service {
             System.out.println("LISTA JUŻ WYPELNIONA");
         }
     }
-
-    /*public List<Song> getSongsList() {
-        final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        int columnIndex;
-        final String[] projection = { MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.ALBUM_ID };
-
-        handler.post(new Runnable() {
-            public void run() {
-                Cursor cursor = getContentResolver().query(uri,
-                        projection, selection, null, null);
-
-                if (cursor.getCount() == 0) {
-                    System.out.println("Nie znaleziono żadnej piosenki");
-
-                } else {
-                    cursor.moveToFirst();
-                    do {
-
-                        System.out.println("Nazwa piosenki: "+cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-                        *//*names.add(cursor.getString(cursor
-                                .getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));*//*
-
-                    } while (cursor.moveToNext());
-
-
-            }
-        });
-    }
-}*/
 }
