@@ -91,8 +91,6 @@ public class SongsFinderService extends Service {
                 }
             });
             searching.start();
-        } else {
-            System.out.println("LISTA JUŻ WYPELNIONA");
         }
     }
 }

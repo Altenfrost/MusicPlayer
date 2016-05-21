@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorDuration">#FFFFFF</color>
     <color name="colorSongTitle">#81b71a</color>
+    <color name="colorSaveButton">#81b71a</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

@@ -8,7 +8,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/song_player_image"
-        android:layout_above="@+id/songSeekBar"
+        android:layout_above="@+id/song_SeekBar"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -62,7 +62,7 @@
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/songSeekBar"
+        android:id="@+id/song_SeekBar"
         android:layout_above="@id/play_button"
         android:layout_centerHorizontal="true" />
 
@@ -73,7 +73,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
-        android:textSize="20sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -82,7 +82,7 @@
         android:layout_below="@id/song_details_title"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
-        android:textSize="20sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -92,7 +92,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentStart="false"
         android:gravity="center_horizontal"
-        android:textSize="20sp"
+        android:textSize="15sp"
         android:layout_above="@+id/song_player_image" />
 
 

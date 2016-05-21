@@ -15,6 +15,8 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     private FragmentTransaction ft;
     public static boolean IS_LAND = false;
     private Fragment currentFragment = null;
+    private final String PLAYER_TAG = "player_tag";
+    private final String GROUP_TAG = "group_tag";
     private MusicGroupFragment musicGroupFragment;
     private SongPlayerFragment songPlayerFragment;
     private Song actualSong;
@@ -64,14 +66,17 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
             if (this.songPlayerFragment!=null && this.musicGroupFragment!=null)
                 System.out.println("ZNALEZIONO");
             System.out.println("ILOSC FRAGMENTOW"+fm.getFragments().size());
+
+            /*this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentByTag(PLAYER_TAG);
+            this.musicGroupFragment = (MusicGroupFragment) fm.findFragmentByTag(GROUP_TAG);
+*/
+
+
             /*if (fm.findFragmentById(R.id.music_group_container)!=null){
                 this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentById(R.id.music_group_container);
                 System.out.println("FUCK YEAH");
 
             }*/
-            ft = fm.beginTransaction();
-            ft.remove(fm.findFragmentById(R.id.music_group_container));
-            ft.commit();
 
             ft = fm.beginTransaction();
 
@@ -114,7 +119,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
         ft = this.fm.beginTransaction();
         this.musicGroupFragment = new MusicGroupFragment();
         this.currentFragment = this.musicGroupFragment;
-        ft.replace(R.id.music_group_container, this.currentFragment);
+        ft.replace(R.id.music_group_container, this.musicGroupFragment, GROUP_TAG);
         ft.commit();
     }
 
@@ -123,7 +128,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
         ft = this.fm.beginTransaction();
         this.songPlayerFragment = new SongPlayerFragment();
         this.currentFragment = songPlayerFragment;
-        ft.replace(R.id.music_group_container, this.currentFragment);
+        ft.replace(R.id.music_group_container, this.songPlayerFragment,PLAYER_TAG);
 
         // dodajemy transakcję na stos
         // dzięki temu możemy wrócić przyciskiem BACK

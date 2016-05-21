@@ -99,9 +99,6 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //System.out.println("ON CREATE VIEW IN FRAGMENT");
-        if (savedInstanceState != null)
-            System.out.println("HURRRA");
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_music_group, container, false);
         // Inflate the layout for this fragment
         return relativeLayout;

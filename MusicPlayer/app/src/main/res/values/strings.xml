@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
-    <string name="action_settings">Settings</string>
+    <string name="add_song_to_playlist_text">Dodaj do playlisty</string>
     <string name="music_catalog">Moja muzyka</string>
     <string name="playlist_catalog">Moje playlisty</string>
     <string name="exit">Wyjdź</string>
@@ -14,4 +14,11 @@
     <string name="song_album_prefix">Nazwa albumu: </string>
     <string name="song_author_prefix">Wykonawca: </string>
     <string name="song_bitrate_prefix">Bitrate: </string>
+
+    <string name="choose_available_playlist_text">Możesz dodać utwór do jednej z istniejących playlist:</string>
+    <string name="save_song_to_playlist_button">Zapisz do playlisty</string>
+    <string name="insert_new_playlist_text">Możesz też wprowadzić nową playlistę</string>
+    <string name="confirm_new_playlist_name">Zatwierdź nazwę nowej playlisty</string>
+    <string name="playlist_operation_summary">Podsumowanie: </string>
+
 </resources>

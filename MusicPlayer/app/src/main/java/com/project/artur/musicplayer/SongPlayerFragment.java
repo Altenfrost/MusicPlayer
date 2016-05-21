@@ -1,14 +1,17 @@
 package com.project.artur.musicplayer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,12 +19,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static java.lang.Thread.sleep;
 
 public class SongPlayerFragment extends Fragment implements View.OnClickListener {
     private OnSongActionListener onSongActionListener;
-    private final String SONG_KEY = "song_key";
+    public static final String SONG_KEY = "song_key";
     private Song songToPlay;
     private ImageView songAlbum;
     private TextView songDetailsTitle, songDetailsAuthor, songDetailsAlbumTitle, songDetailsBitrate;
@@ -29,16 +33,45 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     private SeekBar songSeekBar;
     private Thread updateSeekBar;
     private final int SKIP_VALUE = 5000;
-
     private static MediaPlayer songPlayer;
 
-    public SongPlayerFragment() {
 
+    public interface OnSongActionListener {
+        Song getNextSong();
+
+        Song getPreviousSong();
+
+        Song getActualSong();
+        // TODO: Update argument type and name
+    }
+
+    public SongPlayerFragment() {
         // Required empty public constructor
     }
 
     public Song getSongToPlay() {
         return songToPlay;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+
+        super.onAttach(context);
+
+        System.out.println("ON ATTACH IN SONGPLAYER FRAGMENT");
+        if (context instanceof OnSongActionListener) {
+            onSongActionListener = (OnSongActionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnSongActionListener");
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        System.out.println("ON CREATE IN SONGPLAYER FRAGMENT");
     }
 
     @Override
@@ -61,45 +94,9 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
         }
         System.out.println("KONIEC");
-
-
         return relativeLayout;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(SONG_KEY, songToPlay);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-
-        super.onAttach(context);
-        System.out.println("ON ATTACH IN SONGPLAYER FRAGMENT");
-        if (context instanceof OnSongActionListener) {
-            onSongActionListener = (OnSongActionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSongActionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        System.out.println("ON DETACH IN SONGPLAYERFRAGMENT");
-        onSongActionListener = null;
-    }
-
-    public interface OnSongActionListener {
-        Song getNextSong();
-
-        Song getPreviousSong();
-
-        Song getActualSong();
-        // TODO: Update argument type and name
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -107,79 +104,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         System.out.println("STWORZONO NA NOWO");
 
     }
-
-    public void updateSongInfo(Song newSong) {
-        System.out.println("XDDDD");
-        if (songPlayer != null && songPlayer.isPlaying()) {
-            songPlayer.stop();
-        }
-        songToPlay = newSong;
-        System.out.println("PARAMETRY NASZEJ PIOSENKI2:" + songToPlay.getTitle() + "  " + songToPlay.getAlbumName() + " " + songToPlay.getAuthor());
-        if (newSong != null) {
-            System.out.println("NASZA PIOSENKA NIE JEST PUSTA");
-            songPlayer = MediaPlayer.create(getContext(), newSong.getFileUri());
-            songPlayer.setLooping(true);
-            playButton.setText(R.string.play);
-
-
-            setSongDetails();
-
-            createPlayBarTask();
-        }
-
-    }
-
-    private void createPlayBarTask() {
-
-        updateSeekBar = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int totalDuration = songPlayer.getDuration();
-                int currPosition = 0;
-                songSeekBar.setMax(totalDuration);
-
-                while (currPosition < totalDuration) {
-                    try {
-                        sleep(500);
-                        if (songPlayer.isPlaying()) {
-                            currPosition = songPlayer.getCurrentPosition();
-                            songSeekBar.setProgress(currPosition);
-                        }
-                        
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-
-    private void setSongDetails() {
-
-        Bitmap mainPhotoDetails = songToPlay.getAlbumPhoto();
-        if (mainPhotoDetails != null)
-            this.songAlbum.setImageBitmap(songToPlay.getAlbumPhoto());
-        else
-            this.songAlbum.setImageResource(R.drawable.album_art_default);
-
-        System.out.println("USTAWIAM:" + songToPlay.getTitle() + " " + getResources().getConfiguration().orientation);
-        this.songDetailsAuthor.setText(songToPlay.getAuthor());
-        this.songDetailsTitle.setText(songToPlay.getTitle());
-        this.songDetailsAlbumTitle.setText(songToPlay.getAlbumName());
-        if (songDetailsBitrate != null) {
-            songToPlay.getBitRate();
-            this.songDetailsBitrate.setText(String.valueOf(songToPlay.getBitRate()));
-        }
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        System.out.println("ON CREATE IN SONGPLAYER FRAGMENT");
-    }
-
 
     private void initializeControls(View view) {
         songDetailsTitle = (TextView) view.findViewById(R.id.song_details_title);
@@ -193,7 +117,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         previousSongButton = (Button) view.findViewById(R.id.previous_song_button);
         forwardButton = (Button) view.findViewById(R.id.forward_button);
         backButton = (Button) view.findViewById(R.id.back_button);
-        songSeekBar = (SeekBar) view.findViewById(R.id.songSeekBar);
+        songSeekBar = (SeekBar) view.findViewById(R.id.song_SeekBar);
 
         playButton.setOnClickListener(this);
         nextSongButton.setOnClickListener(this);
@@ -219,6 +143,106 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         });
     }
 
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.song_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.assign_song_item: {
+                if (songToPlay == null) {
+                    Toast.makeText(getContext(), "Nie wybrałeś żadnej pisoenki!", Toast.LENGTH_SHORT).show();
+                    return false;
+                } else {
+                    if (songPlayer.isPlaying())
+                        songPlayer.stop();
+
+
+                    Intent intent = new Intent(this.getContext(), AddSongToPlaylistActivity.class);
+                    Bitmap temp = songToPlay.getAlbumPhoto();
+                    songToPlay.setAlbumPhoto(null);
+                    intent.putExtra(SONG_KEY, songToPlay);
+                    startActivity(intent);
+                    songToPlay.setAlbumPhoto(temp);
+                }
+
+
+                return true;
+            }
+            default: {
+                return super.onOptionsItemSelected(item);
+            }
+        }
+
+    }
+
+
+    public void updateSongInfo(Song newSong) {
+        System.out.println("XDDDD");
+        if (songPlayer != null && songPlayer.isPlaying()) {
+            songPlayer.stop();
+        }
+        songToPlay = newSong;
+        System.out.println("PARAMETRY NASZEJ PIOSENKI2:" + songToPlay.getTitle() + "  " + songToPlay.getAlbumName() + " " + songToPlay.getAuthor());
+        if (newSong != null) {
+            System.out.println("NASZA PIOSENKA NIE JEST PUSTA");
+            songPlayer = MediaPlayer.create(getContext(), newSong.getFileUri());
+            playButton.setText(R.string.play);
+
+
+            setSongDetails();
+
+            createPlayBarTask();
+        }
+
+    }
+
+    private void createPlayBarTask() {
+
+        updateSeekBar = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int totalDuration = songPlayer.getDuration();
+                int currPosition = 0;
+                songSeekBar.setMax(totalDuration);
+
+                while (currPosition < totalDuration) {
+                    try {
+                        sleep(500);
+
+                        currPosition = songPlayer.getCurrentPosition();
+                        songSeekBar.setProgress(currPosition);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void setSongDetails() {
+
+        Bitmap mainPhotoDetails = songToPlay.getAlbumPhoto();
+        if (mainPhotoDetails != null)
+            this.songAlbum.setImageBitmap(songToPlay.getAlbumPhoto());
+        else
+            this.songAlbum.setImageResource(R.drawable.album_art_default);
+
+        this.songDetailsAuthor.setText(getResources().getString(R.string.song_author_prefix) + songToPlay.getAuthor());
+        this.songDetailsTitle.setText(getResources().getString(R.string.song_title_prefix) + songToPlay.getTitle());
+        this.songDetailsAlbumTitle.setText(getResources().getString(R.string.song_album_prefix) + songToPlay.getAlbumName());
+        this.songSeekBar.setProgress(0);
+        if (songDetailsBitrate != null) {
+            this.songDetailsBitrate.setText(getResources().getString(R.string.song_bitrate_prefix) + String.valueOf(songToPlay.getBitRate()));
+        }
+    }
+
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -230,7 +254,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                         playButton.setText(R.string.play);
                     } else {
                         songPlayer.start();
-                        if (updateSeekBar != null && !updateSeekBar.isAlive() )
+                        if (updateSeekBar != null && !updateSeekBar.isAlive())
                             updateSeekBar.start();
 
                         playButton.setText(R.string.pause);
@@ -257,5 +281,20 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
             }
         }
 
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SONG_KEY, songToPlay);
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("ON DETACH IN SONGPLAYERFRAGMENT");
+        onSongActionListener = null;
     }
 }

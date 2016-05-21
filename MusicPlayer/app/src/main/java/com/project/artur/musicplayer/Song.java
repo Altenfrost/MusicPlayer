@@ -16,11 +16,13 @@ public class Song implements Parcelable {
     private String author;
     private String albumName;
     private Uri fileUri;
+    private String filePath;
     private int bitRate;
     private Bitmap albumPhoto;
 
 
     public Song(String songDuration, String title, String author, String albumName, Uri fileUri, String path) {
+        this.filePath = path;
         this.songDuration = new SongDuration(songDuration);
         this.title = title;
         this.author = author;
@@ -50,6 +52,33 @@ public class Song implements Parcelable {
 
     }
 
+    protected Song(Parcel in) {
+        songDuration = in.readParcelable(SongDuration.class.getClassLoader());
+        title = in.readString();
+        author = in.readString();
+        albumName = in.readString();
+        fileUri = in.readParcelable(Uri.class.getClassLoader());
+        filePath = in.readString();
+        bitRate = in.readInt();
+        albumPhoto = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
+
+    public String getFilePath() {
+        return filePath;
+    }
+
     /*public Song(File source) {
         this.source = source;
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
@@ -69,26 +98,9 @@ public class Song implements Parcelable {
     }*/
 
 
-    protected Song(Parcel in) {
-        title = in.readString();
-        author = in.readString();
-        albumName = in.readString();
-        fileUri = in.readParcelable(Uri.class.getClassLoader());
-        bitRate = in.readInt();
-        albumPhoto = in.readParcelable(Bitmap.class.getClassLoader());
+    public void setAlbumPhoto(Bitmap albumPhoto) {
+        this.albumPhoto = albumPhoto;
     }
-
-    public static final Creator<Song> CREATOR = new Creator<Song>() {
-        @Override
-        public Song createFromParcel(Parcel in) {
-            return new Song(in);
-        }
-
-        @Override
-        public Song[] newArray(int size) {
-            return new Song[size];
-        }
-    };
 
     public String getDuration() {
         return songDuration.toString();
@@ -130,10 +142,12 @@ public class Song implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(songDuration, flags);
         dest.writeString(title);
         dest.writeString(author);
         dest.writeString(albumName);
         dest.writeParcelable(fileUri, flags);
+        dest.writeString(filePath);
         dest.writeInt(bitRate);
         dest.writeParcelable(albumPhoto, flags);
     }
