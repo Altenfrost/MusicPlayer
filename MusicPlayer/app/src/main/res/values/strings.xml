@@ -10,7 +10,8 @@
     <string name="back">⏪</string>
     <string name="next_song">&gt;|</string>
     <string name="previous_song">|&lt;</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="song_title_prefix">Tytuł utworu: </string>
+    <string name="song_album_prefix">Nazwa albumu: </string>
+    <string name="song_author_prefix">Wykonawca: </string>
+    <string name="song_bitrate_prefix">Bitrate: </string>
 </resources>

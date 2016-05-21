@@ -7,10 +7,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.Serializable;
-
 /**
  * Created by Alten on 2016-05-07.
  */
@@ -18,17 +14,17 @@ public class Song implements Parcelable {
     private SongDuration songDuration;
     private String title;
     private String author;
-    private String album;
+    private String albumName;
     private Uri fileUri;
     private int bitRate;
     private Bitmap albumPhoto;
 
 
-    public Song(String songDuration, String title, String author, String album, Uri fileUri, String path) {
+    public Song(String songDuration, String title, String author, String albumName, Uri fileUri, String path) {
         this.songDuration = new SongDuration(songDuration);
         this.title = title;
         this.author = author;
-        this.album = album;
+        this.albumName = albumName;
         this.fileUri = fileUri;
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
@@ -62,7 +58,7 @@ public class Song implements Parcelable {
         this.title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         this.author = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR);
         this.bitRate = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
-        this.album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+        this.albumName = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
         this.songDuration = new SongDuration(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 
 
@@ -76,7 +72,7 @@ public class Song implements Parcelable {
     protected Song(Parcel in) {
         title = in.readString();
         author = in.readString();
-        album = in.readString();
+        albumName = in.readString();
         fileUri = in.readParcelable(Uri.class.getClassLoader());
         bitRate = in.readInt();
         albumPhoto = in.readParcelable(Bitmap.class.getClassLoader());
@@ -106,8 +102,8 @@ public class Song implements Parcelable {
         return author;
     }
 
-    public String getAlbum() {
-        return album;
+    public String getAlbumName() {
+        return albumName;
     }
 
     public SongDuration getSongDuration() {
@@ -136,7 +132,7 @@ public class Song implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
         dest.writeString(author);
-        dest.writeString(album);
+        dest.writeString(albumName);
         dest.writeParcelable(fileUri, flags);
         dest.writeInt(bitRate);
         dest.writeParcelable(albumPhoto, flags);

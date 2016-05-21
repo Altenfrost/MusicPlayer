@@ -2,21 +2,18 @@ package com.project.artur.musicplayer;
 
 
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MusicGroupActivity extends AppCompatActivity implements MusicGroupFragment.OnMusicGroupActionListener, SongPlayerFragment.OnSongActionListener {
     private final FragmentManager fm = getSupportFragmentManager();
     private FragmentTransaction ft;
-    private boolean isLand = false;
+    public static boolean IS_LAND = false;
     private Fragment currentFragment = null;
     private MusicGroupFragment musicGroupFragment;
     private SongPlayerFragment songPlayerFragment;
@@ -41,18 +38,58 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         System.out.println("ON CREATE W ACTIVITY");
+
         setContentView(R.layout.activity_music_group);
 
+        IS_LAND = getResources().getBoolean(R.bool.isLand);
+        System.out.println("POOOOOOOOOOOO");
+        if (findViewById(R.id.music_group_container)!=null){
+            setMusicListFragment();
 
-        isLand = getResources().getBoolean(R.bool.isLand);
-        if (!isLand) {
+
+
+        /*if (!IS_LAND) {
             if (this.currentFragment == null)
                 setMusicListFragment();
-            else
+            else{
+                System.out.println("WYWOłanie setMUsicPLayerFragment");
                 setMusicPlayerFragment();
+            }
+*/
         } else {
-            this.musicGroupFragment = (MusicGroupFragment) fm.findFragmentById(R.id.music_group_fragment);
+            System.out.println("TERAZ TWORZE");
+            this.songPlayerFragment = new SongPlayerFragment();
+            System.out.println("STWORZYLEM");
+            this.musicGroupFragment = new MusicGroupFragment();
+            if (this.songPlayerFragment!=null && this.musicGroupFragment!=null)
+                System.out.println("ZNALEZIONO");
+            System.out.println("ILOSC FRAGMENTOW"+fm.getFragments().size());
+            /*if (fm.findFragmentById(R.id.music_group_container)!=null){
+                this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentById(R.id.music_group_container);
+                System.out.println("FUCK YEAH");
+
+            }*/
+            ft = fm.beginTransaction();
+            ft.remove(fm.findFragmentById(R.id.music_group_container));
+            ft.commit();
+
+            ft = fm.beginTransaction();
+
+            ft.replace(R.id.music_group_fragment, musicGroupFragment);
+            ft.replace(R.id.song_player_fragment, songPlayerFragment);
+            ft.commit();
+            System.out.println("ILOSC FRAGMENTOW"+fm.getFragments().size());
+
+            /*ft = fm.beginTransaction();
+            System.out.println("RAZ");
+
+            System.out.println("DWA");
             this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentById(R.id.song_player_fragment);
+            System.out.println("TRZY");
+            ft.replace(R.id.music_group_fragment,this.musicGroupFragment);
+            ft.replace(R.id.song_player_fragment, this.songPlayerFragment);
+            ft.commit();
+            fm.executePendingTransactions();*/
             /*ft = this.fm.beginTransaction();
 
             System.out.println("SPRAWDZENIE, CZY FT JEST PUSTY:"+ft.isEmpty());
@@ -73,6 +110,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     }
 
     private void setMusicListFragment() {
+        System.out.println("SET MUSIC LIST FRAGMENT");
         ft = this.fm.beginTransaction();
         this.musicGroupFragment = new MusicGroupFragment();
         this.currentFragment = this.musicGroupFragment;
@@ -81,6 +119,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     }
 
     private void setMusicPlayerFragment() {
+        System.out.println("SET MUSIC PLAYER FRAGMENT");
         ft = this.fm.beginTransaction();
         this.songPlayerFragment = new SongPlayerFragment();
         this.currentFragment = songPlayerFragment;
@@ -100,7 +139,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     public void showSongMenu(Song selectedSong) {
         actualSong = selectedSong;
 
-        if (!isLand)
+        if (!IS_LAND)
             setMusicPlayerFragment();
         this.songPlayerFragment.updateSongInfo(actualSong);
     }
@@ -124,7 +163,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     @Override
     public Song getNextSong() {
 
-        actualSong = this.musicGroupFragment.getNextSongPos();
+        actualSong = this.musicGroupFragment.getNextSongInList();
 
 
         return actualSong;
@@ -132,7 +171,9 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
 
     @Override
     public Song getPreviousSong() {
-        return null;
+
+        actualSong =this.musicGroupFragment.getPreviousSongInList();
+        return actualSong;
     }
 
     @Override

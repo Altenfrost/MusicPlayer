@@ -34,7 +34,7 @@ public class MusicGroupFragment extends Fragment {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            System.out.println("WYWOŁANIE ON SERVICE CONNECTED IN FRAGMENT");
+            //System.out.println("WYWOŁANIE ON SERVICE CONNECTED IN FRAGMENT");
             isServiceBound = true;
 
             SongsFinderService.LocalSongBinder binder = (SongsFinderService.LocalSongBinder) service;
@@ -51,12 +51,12 @@ public class MusicGroupFragment extends Fragment {
         }
     };
 
-    public Song getNextSongPos() {
+    public Song getNextSongInList() {
         lastSongPos = (lastSongPos + 1 == songList.size()) ? 0 : lastSongPos + 1;
         return songAdapter.getItem(lastSongPos);
     }
 
-    public Song getPreviousSongPos() {
+    public Song getPreviousSongInList() {
         lastSongPos = (lastSongPos - 1 < 0) ? songList.size() - 1 : lastSongPos - 1;
         return songAdapter.getItem(lastSongPos);
 
@@ -66,7 +66,7 @@ public class MusicGroupFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("songlist", (ArrayList<? extends Parcelable>) songAdapter.getSongList());
-        System.out.println("On Save INSTANCE IN FRAGMENT");
+        //System.out.println("On Save INSTANCE IN FRAGMENT");
     }
 
     public interface OnMusicGroupActionListener {
@@ -84,13 +84,13 @@ public class MusicGroupFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState!=null){
-            System.out.println("HEH");
+            //System.out.println("HEH");
             songList = savedInstanceState.getParcelableArrayList("songlist");
-            System.out.println("ROZMIAR"+songList.size());
+            //System.out.println("ROZMIAR"+songList.size());
         }else if (songList == null){
             songList = new ArrayList<>();
         }
-        System.out.println("ON CREATE IN FRAGMENT");
+        //System.out.println("ON CREATE IN FRAGMENT");
         songAdapter = new SongAdapter(getContext(), songList);
 
     }
@@ -99,7 +99,7 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        System.out.println("ON CREATE VIEW IN FRAGMENT");
+        //System.out.println("ON CREATE VIEW IN FRAGMENT");
         if (savedInstanceState != null)
             System.out.println("HURRRA");
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_music_group, container, false);
@@ -110,13 +110,13 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        System.out.println("OnActivityCreated IN FRAGMENT");
+        System.out.println("OnActivityCreated IN MUSICGROUP FRAGMENT");
         songListView = (ListView) this.getView().findViewById(R.id.song_list);
         if (savedInstanceState != null) {
             System.out.println("Nie jest nullem");
             songList = savedInstanceState.getParcelableArrayList("songlist");
         }
-        System.out.println("ROZMIAR LISTY SONGLIST:" + songList.size() + " ROZMIARY SONGLIST ADAPTERA:" + songAdapter.getSongList().size());
+        //System.out.println("ROZMIAR LISTY SONGLIST:" + songList.size() + " ROZMIARY SONGLIST ADAPTERA:" + songAdapter.getSongList().size());
         //songList = songAdapter.getSongList();//wtf
         initializeList();
         if (songList.size() == 0) {
@@ -131,7 +131,7 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        System.out.println("ON ATTACH IN FRAGMENT");
+        System.out.println("ON ATTACH IN MUSICGROUP FRAGMENT");
         if (context instanceof OnMusicGroupActionListener) {
             onMusicGroupActionListener = (OnMusicGroupActionListener) context;
         } else {
@@ -143,8 +143,8 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("OnDestroy IN FRAGMENT" + songList.size() + " I " + songAdapter.getSongList().size());
-        //songList = songAdapter.getSongList();
+        //System.out.println("OnDestroy IN FRAGMENT" + songList.size() + " I " + songAdapter.getSongList().size());
+        songList = songAdapter.getSongList();
 
         if (isServiceBound)
             this.getActivity().unbindService(songsFinderConnection);
@@ -153,25 +153,25 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("On Resume" + songList.size() + "IN FRAGMENT");
+        //System.out.println("On Resume" + songList.size() + "IN FRAGMENT");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        System.out.println("On Pause" + songList.size() + "IN FRAGMENT");
+        //System.out.println("On Pause" + songList.size() + "IN FRAGMENT");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        System.out.println("On Stop" + songList.size() + "IN FRAGMENT");
+        //System.out.println("On Stop" + songList.size() + "IN FRAGMENT");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        System.out.println("ON DETACH IN FRAGMENT");
+        //System.out.println("ON DETACH IN FRAGMENT");
         onMusicGroupActionListener = null;
     }
 

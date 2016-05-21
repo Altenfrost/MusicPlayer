@@ -6,13 +6,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SongsFinderService extends Service {
-    private boolean isRunning;
+    private static boolean isRunning = false;
     private final String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
     private final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     private final String[] projection = {MediaStore.Audio.Media._ID,
@@ -47,16 +48,16 @@ public class SongsFinderService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        isRunning = true;
         return songsBinder;
     }
 
     public void findSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
-        if (songsFound == null || songsFound.size() == 0) {
+        if ((songsFound == null || songsFound.size() == 0) && isRunning == false) {
             System.out.println("WYSZUKIWANIE PIOSENEK");
             Thread searching = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    isRunning = true;
                     songsFound = new ArrayList<>();
                     Cursor cursor = getContentResolver().query(uri,
                             projection, selection, null, null);
@@ -85,6 +86,7 @@ public class SongsFinderService extends Service {
                         } while (cursor.moveToNext());
                         cursor.close();
                         onMusicGroupActionListener.refreshMusicList(songsFound);
+                        isRunning = false;
                     }
                 }
             });

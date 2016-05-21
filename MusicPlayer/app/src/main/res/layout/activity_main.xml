@@ -61,20 +61,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp" />
 
-            <!--<Button
-                android:id="@+id/exit_button"
-
-                android:text="@string/exit"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:gravity="center"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/main_menu_button_shape"
-                android:layout_below="@+id/playlist_button"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp" />-->
 
 
         </RelativeLayout>
