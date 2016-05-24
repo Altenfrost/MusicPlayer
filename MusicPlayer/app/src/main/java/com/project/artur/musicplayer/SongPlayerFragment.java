@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -31,7 +30,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     private TextView songDetailsTitle, songDetailsAuthor, songDetailsAlbumTitle, songDetailsBitrate;
     private Button playButton, nextSongButton, previousSongButton, forwardButton, backButton;
     private SeekBar songSeekBar;
-    private Thread updateSeekBar;
+    private Thread updateSeekBarTask;
     private final int SKIP_VALUE = 5000;
     private static MediaPlayer songPlayer;
 
@@ -201,13 +200,13 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
     private void createPlayBarTask() {
 
-        updateSeekBar = new Thread(new Runnable() {
+        updateSeekBarTask = new Thread(new Runnable() {
             @Override
             public void run() {
                 int totalDuration = songPlayer.getDuration();
                 int currPosition = 0;
                 songSeekBar.setMax(totalDuration);
-                while (currPosition < totalDuration) {
+                while (currPosition < totalDuration && !Thread.currentThread().isInterrupted()) {
                     try {
                         sleep(500);
 
@@ -247,11 +246,16 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                 case R.id.play_button: {
                     if (songPlayer.isPlaying()) {
                         songPlayer.pause();
+                        updateSeekBarTask.interrupt();
                         playButton.setText(R.string.play);
                     } else {
                         songPlayer.start();
-                        if (updateSeekBar != null && !updateSeekBar.isAlive())
-                            updateSeekBar.start();
+                        if (updateSeekBarTask != null && !updateSeekBarTask.isAlive()){
+                            updateSeekBarTask.start();
+
+
+                        }
+
 
                         playButton.setText(R.string.pause);
                     }

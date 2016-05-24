@@ -29,7 +29,8 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
         // w tym momencie te fragmenty jeszcze zawierają dane, lecz gdy odwołam się do nich w onCreate
         // to owszem, widać, że się zapisały, ale są całkowicie puste
         MusicGroupFragment musicGroupFragment = (MusicGroupFragment) fm.findFragmentByTag(MGROUP_KEY);
-        fm.putFragment(outState,MGROUP_KEY,musicGroupFragment);
+
+        fm.putFragment(outState,MGROUP_KEY,musicGroupFragment);// moze rzucac wyjątki, ale jest to kewstia modernizacji if-ów w onCreate
         if (this.songPlayerFragment!=null){
             SongPlayerFragment songPlayerFragment = (SongPlayerFragment) fm.findFragmentByTag(PLAYER_KEY);
             fm.putFragment(outState,PLAYER_KEY,songPlayerFragment);

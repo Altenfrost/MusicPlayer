@@ -53,7 +53,6 @@ public class SongsFinderService extends Service {
 
     public void findSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
         if ((AllSongsList.getInstance().getAllSongs() == null || AllSongsList.getInstance().getAllSongs().size() == 0) && isRunning == false) {
-            System.out.println("WYSZUKIWANIE PIOSENEK");
             Thread searching = new Thread(new Runnable() {
                 @Override
                 public void run() {
