@@ -41,7 +41,6 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        System.out.println("NISZCZE MUSIC GROUP");
     }
 
 

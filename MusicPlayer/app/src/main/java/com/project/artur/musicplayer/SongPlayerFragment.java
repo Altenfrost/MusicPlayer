@@ -68,7 +68,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
         super.onAttach(context);
 
-        System.out.println("ON ATTACH IN SONGPLAYER FRAGMENT");
         if (context instanceof OnSongActionListener) {
             onSongActionListener = (OnSongActionListener) context;
         } else {
@@ -92,7 +91,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
 
         initializeControls(relativeLayout);
-        if (songToPlay!=null)
+        if (songToPlay != null)
             updateSongInfo(songToPlay);
         return relativeLayout;
     }
@@ -208,7 +207,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                 int totalDuration = songPlayer.getDuration();
                 int currPosition = 0;
                 songSeekBar.setMax(totalDuration);
-                while (currPosition < totalDuration ) {
+                while (currPosition < totalDuration) {
                     try {
                         sleep(500);
 
@@ -279,7 +278,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         }
 
     }
-
 
 
     @Override
