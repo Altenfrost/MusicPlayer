@@ -11,6 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.List;
 
 /**
@@ -70,8 +73,10 @@ public class SongAdapter extends BaseAdapter {
         viewHolder.songPhoto = (ImageView) songView.findViewById(R.id.song_photo);
         Bitmap mainPhoto = song.getAlbumPhoto();
         if (mainPhoto == null) {
-            viewHolder.songPhoto.setImageResource(R.drawable.album_art_default);
+            Picasso.with(context).load(R.drawable.album_art_default).into(viewHolder.songPhoto);
+            //viewHolder.songPhoto.setImageResource(R.drawable.album_art_default);
         } else {
+            //Picasso.with(context).load(song.getFileUri()).into(viewHolder.songPhoto); nie działa niestety
             viewHolder.songPhoto.setImageBitmap(mainPhoto);
         }
 

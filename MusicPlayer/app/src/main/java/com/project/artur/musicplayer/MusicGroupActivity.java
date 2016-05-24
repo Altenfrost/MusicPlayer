@@ -14,9 +14,9 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     private final FragmentManager fm = getSupportFragmentManager();
     private FragmentTransaction ft;
     public static boolean IS_LAND = false;
-    private Fragment currentFragment = null;
-    private final String PLAYER_TAG = "player_tag";
-    private final String GROUP_TAG = "group_tag";
+
+    private final String PLAYER_KEY = "songPlayer";
+    private final String MGROUP_KEY = "musicgroup";
     private MusicGroupFragment musicGroupFragment;
     private SongPlayerFragment songPlayerFragment;
     private Song actualSong;
@@ -25,8 +25,17 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        System.out.println("ON SAVE");
-        //outState.putParcelableArrayList("songlist", (ArrayList<? extends Parcelable>) musicGroupFragment.getSongAdapter().getSongList());
+
+        // w tym momencie te fragmenty jeszcze zawierają dane, lecz gdy odwołam się do nich w onCreate
+        // to owszem, widać, że się zapisały, ale są całkowicie puste
+        MusicGroupFragment musicGroupFragment = (MusicGroupFragment) fm.findFragmentByTag(MGROUP_KEY);
+        fm.putFragment(outState,MGROUP_KEY,musicGroupFragment);
+        if (this.songPlayerFragment!=null){
+            SongPlayerFragment songPlayerFragment = (SongPlayerFragment) fm.findFragmentByTag(PLAYER_KEY);
+            fm.putFragment(outState,PLAYER_KEY,songPlayerFragment);
+            outState.putParcelable("actualSong",this.songPlayerFragment.getSongToPlay());
+        }
+
     }
 
     @Override
@@ -39,96 +48,58 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("ON CREATE W ACTIVITY");
 
         setContentView(R.layout.activity_music_group);
-
         IS_LAND = getResources().getBoolean(R.bool.isLand);
-        System.out.println("POOOOOOOOOOOO");
         if (findViewById(R.id.music_group_container)!=null){
             setMusicListFragment();
 
 
+        } else if (IS_LAND){
+            // te if-y powinny działac, gdyby nie fakt, że gdy wywołuje getFragment to otrzymuje null reference
+            if (savedInstanceState!=null && savedInstanceState.containsKey(MGROUP_KEY)){
+                this.musicGroupFragment = (MusicGroupFragment) fm.getFragment(savedInstanceState,MGROUP_KEY);
+                if (savedInstanceState.containsKey(PLAYER_KEY)){
+                    //poniższa linijka jest tylko po to, by ominąć problem pustych referencji
+                    Song song = savedInstanceState.getParcelable("actualSong");
+                    this.songPlayerFragment = (SongPlayerFragment) fm.getFragment(savedInstanceState,PLAYER_KEY);
 
-        /*if (!IS_LAND) {
-            if (this.currentFragment == null)
-                setMusicListFragment();
-            else{
-                System.out.println("WYWOłanie setMUsicPLayerFragment");
-                setMusicPlayerFragment();
+                    this.songPlayerFragment = new SongPlayerFragment();
+                    this.songPlayerFragment.setSongToPlay(song);
+                }else {
+                    this.songPlayerFragment = new SongPlayerFragment();
+                }
+            } else {
+                this.musicGroupFragment = new MusicGroupFragment();
+                this.songPlayerFragment = new SongPlayerFragment();
             }
-*/
-        } else {
-            System.out.println("TERAZ TWORZE");
-            this.songPlayerFragment = new SongPlayerFragment();
-            System.out.println("STWORZYLEM");
-            this.musicGroupFragment = new MusicGroupFragment();
-            if (this.songPlayerFragment!=null && this.musicGroupFragment!=null)
-                System.out.println("ZNALEZIONO");
-            System.out.println("ILOSC FRAGMENTOW"+fm.getFragments().size());
+            this.musicGroupFragment = new MusicGroupFragment();// to jest tutaj tylko po to, żeby na tą chwilę działało, bo tak naprawdę nie potrzebuje
+            // pobierać starego fragmentu, potrzebuję tylko zaktualizowanej instancji obiektu AllSongsList, którą cały czas mam
 
-            /*this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentByTag(PLAYER_TAG);
-            this.musicGroupFragment = (MusicGroupFragment) fm.findFragmentByTag(GROUP_TAG);
-*/
-
-
-            /*if (fm.findFragmentById(R.id.music_group_container)!=null){
-                this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentById(R.id.music_group_container);
-                System.out.println("FUCK YEAH");
-
-            }*/
 
             ft = fm.beginTransaction();
-
             ft.replace(R.id.music_group_fragment, musicGroupFragment);
             ft.replace(R.id.song_player_fragment, songPlayerFragment);
             ft.commit();
-            System.out.println("ILOSC FRAGMENTOW"+fm.getFragments().size());
 
-            /*ft = fm.beginTransaction();
-            System.out.println("RAZ");
 
-            System.out.println("DWA");
-            this.songPlayerFragment = (SongPlayerFragment) fm.findFragmentById(R.id.song_player_fragment);
-            System.out.println("TRZY");
-            ft.replace(R.id.music_group_fragment,this.musicGroupFragment);
-            ft.replace(R.id.song_player_fragment, this.songPlayerFragment);
-            ft.commit();
-            fm.executePendingTransactions();*/
-            /*ft = this.fm.beginTransaction();
-
-            System.out.println("SPRAWDZENIE, CZY FT JEST PUSTY:"+ft.isEmpty());
-            if (this.musicGroupFragment == null){
-                System.out.println("MUSIC GROUP FRAGMENT JEST NULLEM WIEC TWORZE NOWY");
-                this.musicGroupFragment = new MusicGroupFragment();
-            }
-            if (this.songPlayerFragment == null){
-                System.out.println("SONG PLAYER FRAGMENT JEST NULLEM WIEC TWORZE NOWY");
-                this.songPlayerFragment = new SongPlayerFragment();
-            }
-
-            ft.add( R.id.music_group_fragment, this.musicGroupFragment);
-            ft.add(R.id.song_player_fragment, this.songPlayerFragment);
-            ft.commit()*/;
         }
 
     }
 
+
     private void setMusicListFragment() {
-        System.out.println("SET MUSIC LIST FRAGMENT");
         ft = this.fm.beginTransaction();
         this.musicGroupFragment = new MusicGroupFragment();
-        this.currentFragment = this.musicGroupFragment;
-        ft.replace(R.id.music_group_container, this.musicGroupFragment, GROUP_TAG);
+
+        ft.replace(R.id.music_group_container, this.musicGroupFragment, MGROUP_KEY);
         ft.commit();
     }
 
     private void setMusicPlayerFragment() {
-        System.out.println("SET MUSIC PLAYER FRAGMENT");
         ft = this.fm.beginTransaction();
         this.songPlayerFragment = new SongPlayerFragment();
-        this.currentFragment = songPlayerFragment;
-        ft.replace(R.id.music_group_container, this.songPlayerFragment,PLAYER_TAG);
+        ft.replace(R.id.music_group_container, this.songPlayerFragment,PLAYER_KEY);
 
         // dodajemy transakcję na stos
         // dzięki temu możemy wrócić przyciskiem BACK
@@ -150,14 +121,13 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     }
 
     @Override
-    public void refreshMusicList(final List<Song> actualList) {
-        System.out.println("ODŚWIEŻAM LISTĘ UTWORÓW");
+    public void refreshMusicList() {
 
         handler.post(new Runnable() {
             @Override
             public void run() {
                 if (musicGroupFragment != null) {
-                    musicGroupFragment.getSongAdapter().setSongList(actualList);
+                    musicGroupFragment.getSongAdapter().setSongList(AllSongsList.getInstance().getAllSongs());
                     musicGroupFragment.getSongAdapter().notifyDataSetChanged();
                 }
             }

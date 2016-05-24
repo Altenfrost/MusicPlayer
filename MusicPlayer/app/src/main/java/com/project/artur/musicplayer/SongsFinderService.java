@@ -52,7 +52,7 @@ public class SongsFinderService extends Service {
     }
 
     public void findSongsList(final MusicGroupFragment.OnMusicGroupActionListener onMusicGroupActionListener) {
-        if ((songsFound == null || songsFound.size() == 0) && isRunning == false) {
+        if ((AllSongsList.getInstance().getAllSongs() == null || AllSongsList.getInstance().getAllSongs().size() == 0) && isRunning == false) {
             System.out.println("WYSZUKIWANIE PIOSENEK");
             Thread searching = new Thread(new Runnable() {
                 @Override
@@ -66,7 +66,7 @@ public class SongsFinderService extends Service {
                         System.out.println("Nie znaleziono żadnej piosenki");
 
                     } else {
-
+                        List<Song> songsFound = new ArrayList<>();
                         cursor.moveToFirst();
                         do {
 
@@ -85,7 +85,8 @@ public class SongsFinderService extends Service {
                             ));
                         } while (cursor.moveToNext());
                         cursor.close();
-                        onMusicGroupActionListener.refreshMusicList(songsFound);
+                        AllSongsList.getInstance().setAllSongs(songsFound);
+                        onMusicGroupActionListener.refreshMusicList();
                         isRunning = false;
                     }
                 }

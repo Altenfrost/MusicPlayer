@@ -21,7 +21,7 @@ public class PlaylistAdapter extends BaseAdapter {
     public PlaylistAdapter(Context context, List<String> playlistsNames) {
         this.context = context;
         this.playlistNames = playlistsNames;
-        if (this.playlistNames.size()==0){
+        if (this.playlistNames.size() == 0) {
             this.playlistProvider = new PlaylistDatabase(this.context);
             this.playlistNames = this.playlistProvider.getPlaylistNames();
 

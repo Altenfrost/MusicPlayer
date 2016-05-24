@@ -42,7 +42,13 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         Song getPreviousSong();
 
         Song getActualSong();
-        // TODO: Update argument type and name
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
     }
 
     public SongPlayerFragment() {
@@ -51,6 +57,10 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
     public Song getSongToPlay() {
         return songToPlay;
+    }
+
+    public void setSongToPlay(Song songToPlay) {
+        this.songToPlay = songToPlay;
     }
 
     @Override
@@ -71,29 +81,19 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        System.out.println("ON CREATE IN SONGPLAYER FRAGMENT");
+        //setRetainInstance(true);
+        // gdy go dodam to zwraca: java.lang.IllegalArgumentException: No view found for id 0x7f0c0072 (com.project.artur.musicplayer:id/music_group_container) for fragment SongPlayerFragment{a31205c #1 id=0x7f0c0072 songPlayer}
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        System.out.println("ON CREATE VIEW IN SONGPLAYER FRAGMENT1");
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_song_player, container, false);
-        System.out.println("ON CREATE VIEW IN SONGPLAYER FRAGMENT2");
-        if (Looper.myLooper() == Looper.getMainLooper())
-            System.out.println("WATEK GLOWNY");
-        initializeControls(relativeLayout);
-        System.out.println("PRZED POBRANIEM PIOSENKI");
-        if (savedInstanceState != null) {
-            songToPlay = savedInstanceState.getParcelable(SONG_KEY);
-            if (songToPlay != null) {
-                System.out.println("HHEHEHEHEHEHEH");
-                System.out.println("PARAMETRY NASZEJ PIOSENKI:" + songToPlay.getTitle() + "  " + songToPlay.getAlbumName() + " " + songToPlay.getAuthor());
-                updateSongInfo(songToPlay);
-            }
 
-        }
-        System.out.println("KONIEC");
+
+        initializeControls(relativeLayout);
+        if (songToPlay!=null)
+            updateSongInfo(songToPlay);
         return relativeLayout;
     }
 
@@ -101,9 +101,9 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        System.out.println("STWORZONO NA NOWO");
 
     }
+
 
     private void initializeControls(View view) {
         songDetailsTitle = (TextView) view.findViewById(R.id.song_details_title);
@@ -183,14 +183,12 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
 
     public void updateSongInfo(Song newSong) {
-        System.out.println("XDDDD");
         if (songPlayer != null && songPlayer.isPlaying()) {
             songPlayer.stop();
+            this.songSeekBar.setProgress(0);
         }
         songToPlay = newSong;
-        System.out.println("PARAMETRY NASZEJ PIOSENKI2:" + songToPlay.getTitle() + "  " + songToPlay.getAlbumName() + " " + songToPlay.getAuthor());
         if (newSong != null) {
-            System.out.println("NASZA PIOSENKA NIE JEST PUSTA");
             songPlayer = MediaPlayer.create(getContext(), newSong.getFileUri());
             playButton.setText(R.string.play);
 
@@ -210,8 +208,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                 int totalDuration = songPlayer.getDuration();
                 int currPosition = 0;
                 songSeekBar.setMax(totalDuration);
-
-                while (currPosition < totalDuration) {
+                while (currPosition < totalDuration ) {
                     try {
                         sleep(500);
 
@@ -236,7 +233,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         this.songDetailsAuthor.setText(getResources().getString(R.string.song_author_prefix) + songToPlay.getAuthor());
         this.songDetailsTitle.setText(getResources().getString(R.string.song_title_prefix) + songToPlay.getTitle());
         this.songDetailsAlbumTitle.setText(getResources().getString(R.string.song_album_prefix) + songToPlay.getAlbumName());
-        this.songSeekBar.setProgress(0);
+
         if (songDetailsBitrate != null) {
             this.songDetailsBitrate.setText(getResources().getString(R.string.song_bitrate_prefix) + String.valueOf(songToPlay.getBitRate()));
         }
@@ -284,17 +281,10 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     }
 
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(SONG_KEY, songToPlay);
-    }
-
 
     @Override
     public void onDetach() {
         super.onDetach();
-        System.out.println("ON DETACH IN SONGPLAYERFRAGMENT");
         onSongActionListener = null;
     }
 }
