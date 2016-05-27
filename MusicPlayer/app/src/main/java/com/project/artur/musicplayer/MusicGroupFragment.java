@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +15,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
-import java.util.List;
-
 
 public class MusicGroupFragment extends Fragment {
     private ListView songListView;
@@ -69,7 +66,7 @@ public class MusicGroupFragment extends Fragment {
 
 
     public interface OnMusicGroupActionListener {
-        void showSongMenu(Song selectedSong);
+        void showSong(Song selectedSong);
 
         void refreshMusicList();
     }
@@ -151,7 +148,7 @@ public class MusicGroupFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Song selectedSong = songAdapter.getItem(position);
                 lastSongPos = position;
-                onMusicGroupActionListener.showSongMenu(selectedSong);
+                onMusicGroupActionListener.showSong(selectedSong);
             }
 
         });
