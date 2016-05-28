@@ -16,19 +16,30 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = (Button) findViewById(R.id.music_button);
-        button.setOnClickListener(new OnClickListener() {
+        initializeControls();
+
+    }
+
+    private void initializeControls() {
+        Button musicGroupButton = (Button) findViewById(R.id.music_button);
+        musicGroupButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 goTo(MusicGroupActivity.class);
             }
         });
 
+        Button playListButton = (Button) findViewById(R.id.playlist_button);
+        playListButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goTo(PlaylistActivity.class);
+            }
+        });
     }
 
 
-
-    private void goTo(Class destinationClass){
+    private void goTo(Class destinationClass) {
         Intent i = new Intent(this, destinationClass);
         startActivity(i);
     }

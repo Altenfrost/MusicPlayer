@@ -20,9 +20,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import static java.lang.Thread.sleep;
 
 public class SongPlayerFragment extends Fragment implements View.OnClickListener {
+    public static final String LAST_PLAYED_SONG = "lastPlayedSong";
+    public static final String SONG_CURRENT_POSITION = "songCurrentPosition";
     private OnSongActionListener onSongActionListener;
     public static final String SONG_KEY = "song_key";
     private Song songToPlay;
@@ -34,6 +38,9 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     private final int SKIP_VALUE = 5000;
     private static MediaPlayer songPlayer;
 
+    public static MediaPlayer getSongPlayer() {
+        return songPlayer;
+    }
 
     public interface OnSongActionListener {
         Song getNextSong();
@@ -47,6 +54,11 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (songPlayer != null) {
+            outState.putInt(SONG_CURRENT_POSITION, songPlayer.getCurrentPosition());
+            outState.putParcelable(LAST_PLAYED_SONG, songToPlay);
+        }
+
 
     }
 
@@ -79,6 +91,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
         //setRetainInstance(true);
         // gdy go dodam to zwraca: java.lang.IllegalArgumentException: No view found for id 0x7f0c0072 (com.project.artur.musicplayer:id/music_group_container) for fragment SongPlayerFragment{a31205c #1 id=0x7f0c0072 songPlayer}
     }
@@ -86,12 +99,12 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_song_player, container, false);
-
-
         initializeControls(relativeLayout);
+
         if (songToPlay != null)
-            updateSongInfo(songToPlay);
+            setSongDetails();
         return relativeLayout;
     }
 
@@ -99,6 +112,11 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAST_PLAYED_SONG) && savedInstanceState.containsKey(SONG_CURRENT_POSITION)) {
+            Song savedSong = savedInstanceState.getParcelable(LAST_PLAYED_SONG);
+            int currentPosition = savedInstanceState.getInt(SONG_CURRENT_POSITION);
+            updateSongInfo(savedSong, currentPosition);
+        }
 
     }
 
@@ -136,7 +154,8 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                songPlayer.seekTo(seekBar.getProgress());
+                if (songPlayer != null)
+                    songPlayer.seekTo(seekBar.getProgress());
             }
         });
     }
@@ -154,7 +173,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         switch (item.getItemId()) {
             case R.id.assign_song_item: {
                 if (songToPlay == null) {
-                    Toast.makeText(getContext(), "Nie wybrałeś żadnej pisoenki!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Nie wybrałeś żadnej piosenki!", Toast.LENGTH_SHORT).show();
                     return false;
                 } else {
                     if (songPlayer.isPlaying())
@@ -162,11 +181,10 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
 
                     Intent intent = new Intent(this.getContext(), AddSongToPlaylistActivity.class);
-                    Bitmap temp = songToPlay.getAlbumPhoto();
-                    songToPlay.setAlbumPhoto(null);
+                    Bitmap temp = optimizeSong();
                     intent.putExtra(SONG_KEY, songToPlay);
                     startActivity(intent);
-                    songToPlay.setAlbumPhoto(temp);
+                    returnToDefaultSongDataState(temp);
                 }
 
 
@@ -179,22 +197,47 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
     }
 
+    private void returnToDefaultSongDataState(Bitmap temp) {
+        songToPlay.setAlbumPhoto(temp);
+    }
 
-    public void updateSongInfo(Song newSong) {
-        if (songPlayer != null && songPlayer.isPlaying()) {
-            songPlayer.stop();
-            this.songSeekBar.setProgress(0);
-        }
+    private Bitmap optimizeSong() {
+        Bitmap temp = songToPlay.getAlbumPhoto();
+        songToPlay.setAlbumPhoto(null);
+        return temp;
+    }
+
+
+    public void updateSongInfo(Song newSong, int currentPositionInSong) {
+        if (newSong==null)
+            return;
         songToPlay = newSong;
-        if (newSong != null) {
+        if (songPlayer != null) {
+            if (songPlayer.isPlaying())
+                songPlayer.stop();
+            songPlayer.reset();
+            songPlayer.setLooping(true);
+            try {
+                songPlayer.setDataSource(getContext(), songToPlay.getFileUri());
+                songPlayer.prepare();
+                songPlayer.seekTo(currentPositionInSong);
+                this.songSeekBar.setMax(songPlayer.getDuration());
+                this.songSeekBar.setProgress(currentPositionInSong);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
             songPlayer = MediaPlayer.create(getContext(), newSong.getFileUri());
-            playButton.setText(R.string.play);
-
-
-            setSongDetails();
-
-            createPlayBarTask();
+            songPlayer.setLooping(true);
         }
+        playButton.setText(R.string.play);
+
+        setSongDetails();
+
+        createPlayBarTask();
+
 
     }
 
@@ -203,19 +246,33 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         updateSeekBarTask = new Thread(new Runnable() {
             @Override
             public void run() {
-                int totalDuration = songPlayer.getDuration();
-                int currPosition = 0;
-                songSeekBar.setMax(totalDuration);
-                while (currPosition < totalDuration && !Thread.currentThread().isInterrupted()) {
-                    try {
-                        sleep(500);
+                do {
+                    int totalDuration = songPlayer.getDuration();
+                    int currPosition = songPlayer.getCurrentPosition();
+                    songSeekBar.setMax(totalDuration);
+                    while (currPosition < totalDuration && songPlayer.isPlaying()) {
+                        try {
 
-                        currPosition = songPlayer.getCurrentPosition();
-                        songSeekBar.setProgress(currPosition);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                            sleep(500);
+
+                            currPosition = songPlayer.getCurrentPosition();
+                            if (currPosition >= 0)
+                                songSeekBar.setProgress(currPosition);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
+                    synchronized (songPlayer) {
+                        try {
+                            songPlayer.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } while (songPlayer.isPlaying());
+
+
+
             }
         });
     }
@@ -246,18 +303,18 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                 case R.id.play_button: {
                     if (songPlayer.isPlaying()) {
                         songPlayer.pause();
-                        updateSeekBarTask.interrupt();
                         playButton.setText(R.string.play);
                     } else {
                         songPlayer.start();
-                        if (updateSeekBarTask != null && !updateSeekBarTask.isAlive()){
+                        if (wasThreadAndSeekBarInitialized()) {
                             updateSeekBarTask.start();
-
-
                         }
 
 
                         playButton.setText(R.string.pause);
+                        synchronized (songPlayer) {
+                            songPlayer.notifyAll();
+                        }
                     }
                     break;
                 }
@@ -268,12 +325,12 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                     songPlayer.seekTo(songPlayer.getCurrentPosition() - SKIP_VALUE);
                     break;
                 case R.id.next_song_button: {
-                    updateSongInfo(onSongActionListener.getNextSong());
+                    updateSongInfo(onSongActionListener.getNextSong(), 0);
                     playButton.setText(R.string.play);
                     break;
                 }
                 case R.id.previous_song_button: {
-                    updateSongInfo(onSongActionListener.getPreviousSong());
+                    updateSongInfo(onSongActionListener.getPreviousSong(), 0);
                     playButton.setText(R.string.play);
                     break;
                 }
@@ -283,6 +340,34 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
     }
 
+    private boolean wasThreadAndSeekBarInitialized() {
+        return updateSeekBarTask != null && !updateSeekBarTask.isAlive() && updateSeekBarTask.getState() == Thread.State.NEW;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        playButton.setText(R.string.play);
+        if (songPlayer != null && songToPlay != null) {
+            updateSongInfo(songToPlay, songPlayer.getCurrentPosition());
+            synchronized (songPlayer) {
+                songPlayer.notifyAll();
+            }
+
+        }
+    }
 
     @Override
     public void onDetach() {

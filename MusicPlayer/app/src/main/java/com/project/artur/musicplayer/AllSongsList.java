@@ -1,5 +1,6 @@
 package com.project.artur.musicplayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class AllSongsList {
         if(allSongsListInstance == null)
         {
             allSongsListInstance = new AllSongsList();
+            allSongsListInstance.setAllSongs(new ArrayList<Song>());
         }
         return allSongsListInstance;
     }

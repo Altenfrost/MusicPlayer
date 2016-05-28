@@ -79,8 +79,8 @@ public class SongsFinderService extends Service {
                                     cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)),
                                     cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)),
                                     playableUri,
-                                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-
+                                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)),
+                                    true
                             ));
                         } while (cursor.moveToNext());
                         cursor.close();

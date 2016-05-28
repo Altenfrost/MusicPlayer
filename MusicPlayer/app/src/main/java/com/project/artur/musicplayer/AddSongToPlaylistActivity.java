@@ -24,11 +24,10 @@ public class AddSongToPlaylistActivity extends Activity {
     private TextView summary;
     private Button confirmPlaylistNameButton, savePlaylistChooseButton;
     private Song songToAdd;
-    private List<String> availablePlaylistsNames;
     private String infoAboutSong;
     private String playlistToChangeName;
     private PlaylistAdapter playlistAdapter;
-    private PlaylistDatabase playlistDatabase;
+    private PlaylistProvider playlistProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +36,12 @@ public class AddSongToPlaylistActivity extends Activity {
 
         Intent intent = getIntent();
         this.songToAdd = intent.getParcelableExtra(SongPlayerFragment.SONG_KEY);
+        if (this.songToAdd == null)
+            throw new IllegalArgumentException("No song was selected");
+
+        playlistProvider  = new PlaylistDatabase(this);
+
+        playlistAdapter = new PlaylistAdapter(getApplicationContext(), playlistProvider.getPlaylistNames());
 
         initializeControls();
 
@@ -52,15 +57,11 @@ public class AddSongToPlaylistActivity extends Activity {
         this.confirmPlaylistNameButton = (Button) findViewById(R.id.accept_new_playlist_button);
         this.savePlaylistChooseButton = (Button) findViewById(R.id.assign_playlist_button);
 
-        this.infoAboutSong = "Musisz wybrać playlistę dla: "+songToAdd.getTitle();
+        this.infoAboutSong = "Musisz wybrać playlistę dla: " + songToAdd.getTitle();
         this.summary.setText(infoAboutSong);
     }
 
     private void initializeListView() {
-        availablePlaylistsNames = new ArrayList<>();
-
-        playlistAdapter = new PlaylistAdapter(getApplicationContext(),availablePlaylistsNames);
-
         availablePlaylistsView.setAdapter(playlistAdapter);
         availablePlaylistsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -68,7 +69,7 @@ public class AddSongToPlaylistActivity extends Activity {
                 String selectedPlaylist = playlistAdapter.getItem(position);
                 playlistToChangeName = selectedPlaylist;
 
-                summary.setText(infoAboutSong+ " \n Wybrana playlista:"+playlistToChangeName);
+                summary.setText(infoAboutSong + " \n Wybrana playlista:" + playlistToChangeName);
             }
 
         });
@@ -79,14 +80,14 @@ public class AddSongToPlaylistActivity extends Activity {
             @Override
             public void onClick(View v) {
                 playlistToChangeName = newPlaylistName.getText().toString();
-                summary.setText(infoAboutSong+ " \n Wybrana playlista:"+playlistToChangeName);
+                summary.setText(infoAboutSong + " \n Wybrana playlista:" + playlistToChangeName);
             }
         });
 
         this.savePlaylistChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playlistToChangeName!=null && playlistToChangeName.length()!=0){
+                if (playlistToChangeName != null && playlistToChangeName.length() != 0) {
                     saveSongToPlaylist();
                 }
 
@@ -96,20 +97,20 @@ public class AddSongToPlaylistActivity extends Activity {
     }
 
     private void saveSongToPlaylist() {
-        PlaylistProvider playlistProvider = new PlaylistDatabase(this);
+
         Playlist playlist = playlistProvider.getPlaylist(playlistToChangeName);
-        if (playlist!=null){
+        if (playlist != null) {
             if (checkIfSongBelongToPlaylist(playlist))
                 return;
 
 
             playlistProvider.addToExistedPlaylist(playlistToChangeName, songToAdd);
-            Toast.makeText(this,"Dodano do istniejącej playlisty",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Dodano do istniejącej playlisty", Toast.LENGTH_SHORT).show();
             return;
         } else {
             Playlist newPlaylist = createNewPlaylist();
             playlistProvider.addPlaylist(newPlaylist);
-            Toast.makeText(this,"Utworzono nową playlistę",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Utworzono nową playlistę", Toast.LENGTH_SHORT).show();
         }
 
         finish();
@@ -119,13 +120,13 @@ public class AddSongToPlaylistActivity extends Activity {
     private Playlist createNewPlaylist() {
         List<Song> songsInPlaylist = new ArrayList<Song>();
         songsInPlaylist.add(songToAdd);
-        return new Playlist(songsInPlaylist,playlistToChangeName);
+        return new Playlist(songsInPlaylist, playlistToChangeName);
     }
 
     private boolean checkIfSongBelongToPlaylist(Playlist playlist) {
-        for (Song songInPlaylist: playlist.getSongsInPlaylist()){
-            if (songInPlaylist.getTitle().equals(songToAdd.getTitle())){
-                Toast.makeText(this,"Ta piosenka już jest w tej playliście!",Toast.LENGTH_SHORT).show();
+        for (Song songInPlaylist : playlist.getSongsInPlaylist()) {
+            if (songInPlaylist.getTitle().equals(songToAdd.getTitle())) {
+                Toast.makeText(this, "Ta piosenka już jest w tej playliście!", Toast.LENGTH_SHORT).show();
                 return true;
             }
         }

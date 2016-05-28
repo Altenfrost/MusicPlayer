@@ -18,39 +18,44 @@ public class Song implements Parcelable {
     private Uri fileUri;
     private String filePath;
     private int bitRate;
+    private boolean detailedVersion;
     private Bitmap albumPhoto;
 
 
-    public Song(String songDuration, String title, String author, String albumName, Uri fileUri, String path) {
+    public Song(String songDuration, String title, String author, String albumName, Uri fileUri, String path, boolean detailedVersion) {
         this.filePath = path;
         this.songDuration = new SongDuration(songDuration);
         this.title = title;
         this.author = author;
         this.albumName = albumName;
         this.fileUri = fileUri;
+        this.detailedVersion = detailedVersion;
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(path);
         this.bitRate = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
-
-        byte[] albumPhotoBytes = metaRetriever.getEmbeddedPicture();
+        if (detailedVersion == true) {
+            createBitmap(metaRetriever);
+        }
 
         metaRetriever.release();
-        if (albumPhotoBytes!=null){
+
+    }
+
+    private void createBitmap(MediaMetadataRetriever metaRetriever) {
+        byte[] albumPhotoBytes = metaRetriever.getEmbeddedPicture();
+        if (albumPhotoBytes != null) {
             BitmapFactory.Options options = new BitmapFactory.Options();
-            /*int scale = 1;
-            while(options.outWidth / scale / 2 >= 40 &&
-                    options.outHeight / scale / 2 >= 40) {
-                scale *= 2;
-            }*/
+
             options.inJustDecodeBounds = false;
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inDither = true;
 
-            this.albumPhoto = BitmapFactory.decodeByteArray(albumPhotoBytes, 0, albumPhotoBytes.length,options);
+            this.albumPhoto = BitmapFactory.decodeByteArray(albumPhotoBytes, 0, albumPhotoBytes.length, options);
+            detailedVersion = true;
         }
-
     }
+
 
     protected Song(Parcel in) {
         songDuration = in.readParcelable(SongDuration.class.getClassLoader());
@@ -60,6 +65,7 @@ public class Song implements Parcelable {
         fileUri = in.readParcelable(Uri.class.getClassLoader());
         filePath = in.readString();
         bitRate = in.readInt();
+        detailedVersion = in.readByte() != 0;
         albumPhoto = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
@@ -131,7 +137,15 @@ public class Song implements Parcelable {
     }
 
     public Bitmap getAlbumPhoto() {
-        return albumPhoto;
+        if (detailedVersion == true) {
+            return albumPhoto;
+        } else {
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            mediaMetadataRetriever.setDataSource(this.filePath);
+            createBitmap(mediaMetadataRetriever);
+            return albumPhoto;
+        }
+
     }
 
 
@@ -149,6 +163,7 @@ public class Song implements Parcelable {
         dest.writeParcelable(fileUri, flags);
         dest.writeString(filePath);
         dest.writeInt(bitRate);
+        dest.writeByte((byte) (detailedVersion ? 1 : 0));
         dest.writeParcelable(albumPhoto, flags);
     }
 }

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,24 +14,32 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class MusicGroupFragment extends Fragment {
+    public static final String LAST_SONG_POS = "lastSongPos";
     private ListView songListView;
     private boolean isServiceBound = false;
+    private boolean isPlaylist = false;
     private int lastSongPos = 0;
     private SongAdapter songAdapter;
+    private List<Song> songsList;
     private OnMusicGroupActionListener onMusicGroupActionListener;
     protected SongsFinderService songsFinderService;
+    
 
-    public int getLastSongPos() {
-        return lastSongPos;
+    public void setSongsList(List<Song> songsList) {
+        this.songsList = songsList;
+        isPlaylist = true;
     }
 
-    public void setLastSongPos(int lastSongPos) {
-        this.lastSongPos = lastSongPos;
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (lastSongPos != 0) {
+            outState.putInt(LAST_SONG_POS, lastSongPos);
+        }
     }
 
     private ServiceConnection songsFinderConnection = new ServiceConnection() {
@@ -45,9 +52,9 @@ public class MusicGroupFragment extends Fragment {
 
             SongsFinderService.LocalSongBinder binder = (SongsFinderService.LocalSongBinder) service;
             songsFinderService = binder.getService();
-            if (AllSongsList.getInstance().getAllSongs().size() == 0) {
-                songsFinderService.findSongsList(onMusicGroupActionListener);
-            }
+
+            songsFinderService.findSongsList(onMusicGroupActionListener);
+
         }
 
         @Override
@@ -57,19 +64,19 @@ public class MusicGroupFragment extends Fragment {
     };
 
     public Song getNextSongInList() {
-        lastSongPos = (lastSongPos + 1 == AllSongsList.getInstance().getAllSongs().size()) ? 0 : lastSongPos + 1;
+        lastSongPos = (lastSongPos + 1 == songsList.size()) ? 0 : lastSongPos + 1;
         return songAdapter.getItem(lastSongPos);
     }
 
     public Song getPreviousSongInList() {
-        lastSongPos = (lastSongPos - 1 < 0) ? AllSongsList.getInstance().getAllSongs().size() - 1 : lastSongPos - 1;
+        lastSongPos = (lastSongPos - 1 < 0) ? songsList.size() - 1 : lastSongPos - 1;
         return songAdapter.getItem(lastSongPos);
 
     }
 
 
     public interface OnMusicGroupActionListener {
-        void showSongMenu(Song selectedSong);
+        void showSong(Song selectedSong);
 
         void refreshMusicList();
     }
@@ -82,10 +89,9 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (AllSongsList.getInstance().getAllSongs()==null){
-            AllSongsList.getInstance().setAllSongs(new ArrayList<Song>());
-        }
-        songAdapter = new SongAdapter(getContext(), AllSongsList.getInstance().getAllSongs());
+
+        System.out.println("ON CREATE");
+
 
     }
 
@@ -94,6 +100,13 @@ public class MusicGroupFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_music_group, container, false);
+        //musialem to przeniesc z OnCreate
+        if (songsList != null) {
+            songAdapter = new SongAdapter(getContext(), songsList);
+        } else {
+            songsList = AllSongsList.getInstance().getAllSongs();
+            songAdapter = new SongAdapter(getContext(), AllSongsList.getInstance().getAllSongs());
+        }
         // Inflate the layout for this fragment
         return relativeLayout;
     }
@@ -101,10 +114,16 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        System.out.println("ON ACTIVITY CREATED");
         songListView = (ListView) this.getView().findViewById(R.id.song_list);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAST_SONG_POS)) {
+            this.lastSongPos = savedInstanceState.getInt(LAST_SONG_POS);
+        }
 
         initializeList();
         if (AllSongsList.getInstance().getAllSongs().size() == 0) {
+
             Intent intent = new Intent(this.getActivity(), SongsFinderService.class);
             this.getActivity().bindService(intent, songsFinderConnection, Context.BIND_AUTO_CREATE);
         }
@@ -136,7 +155,6 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        //System.out.println("ON DETACH IN FRAGMENT");
         onMusicGroupActionListener = null;
     }
 
@@ -151,7 +169,7 @@ public class MusicGroupFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Song selectedSong = songAdapter.getItem(position);
                 lastSongPos = position;
-                onMusicGroupActionListener.showSongMenu(selectedSong);
+                onMusicGroupActionListener.showSong(selectedSong);
             }
 
         });

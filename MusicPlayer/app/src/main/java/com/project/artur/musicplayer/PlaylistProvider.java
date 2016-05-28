@@ -10,6 +10,8 @@ public interface PlaylistProvider {
 
     List<String> getPlaylistNames();
 
+    List<Playlist> getAllPlaylists();
+
     void removePlaylist(String playlistName);
 
     void addPlaylist(Playlist playlistToAdd);

@@ -15,17 +15,11 @@ import java.util.List;
  */
 public class PlaylistAdapter extends BaseAdapter {
     private Context context;
-    private PlaylistProvider playlistProvider;
     private List<String> playlistNames;
 
     public PlaylistAdapter(Context context, List<String> playlistsNames) {
         this.context = context;
         this.playlistNames = playlistsNames;
-        if (this.playlistNames.size() == 0) {
-            this.playlistProvider = new PlaylistDatabase(this.context);
-            this.playlistNames = this.playlistProvider.getPlaylistNames();
-
-        }
     }
 
 
@@ -67,8 +61,6 @@ public class PlaylistAdapter extends BaseAdapter {
 
     private class ViewHolder {
         private TextView playlistTitle;
-
-
     }
 
 }

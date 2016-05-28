@@ -42,14 +42,11 @@ public class PlaylistDatabase implements PlaylistProvider {
                 null                                 // The sort order
         );
         cursor.moveToFirst();
-        if (cursor.getCount()==0)
+        if (cursor.getCount() == 0)
             return null;
         List<Song> songsInPlaylist = new ArrayList<>();
         do {
-
             fetchDataAboutSong(cursor, songsInPlaylist);
-
-
         } while (cursor.moveToNext());
         cursor.close();
 
@@ -64,7 +61,7 @@ public class PlaylistDatabase implements PlaylistProvider {
                 cursor.getString(cursor.getColumnIndex(COLUMN_SONG_AUTHOR)),
                 cursor.getString(cursor.getColumnIndex(COLUMN_SONG_ALBUM_NAME)),
                 convertedUri,
-                cursor.getString(cursor.getColumnIndex(COLUMN_SONG_PATH))));
+                cursor.getString(cursor.getColumnIndex(COLUMN_SONG_PATH)), false));
     }
 
     @Override
@@ -86,7 +83,7 @@ public class PlaylistDatabase implements PlaylistProvider {
                 null                                 // The sort order
         );
         cursor.moveToFirst();
-        if (cursor.getCount()!=0){
+        if (cursor.getCount() != 0) {
             do {
                 allPlaylistsNames.add(cursor.getString(cursor.getColumnIndex(COLUMN_PLAYLIST_TITLE)));
             } while (cursor.moveToNext());
@@ -96,6 +93,19 @@ public class PlaylistDatabase implements PlaylistProvider {
 
         return allPlaylistsNames;
 
+    }
+
+    @Override
+    public List<Playlist> getAllPlaylists() {
+        List<String> allPlaylistsNames = getPlaylistNames();
+        List<Playlist> allPlaylists = new ArrayList<>();
+        for (String playlistName : allPlaylistsNames) {
+            Playlist playlistFound = getPlaylist(playlistName);
+            System.out.println("Znaleziono baze" + playlistFound.getPlaylistTitle() + " Ilosc utworow:" + playlistFound.getSongsInPlaylist().size());
+            allPlaylists.add(playlistFound);
+
+        }
+        return allPlaylists;
     }
 
 
@@ -112,7 +122,7 @@ public class PlaylistDatabase implements PlaylistProvider {
 
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(COLUMN_PLAYLIST_TITLE,playlistToAdd.getPlaylistTitle());
+        contentValues.put(COLUMN_PLAYLIST_TITLE, playlistToAdd.getPlaylistTitle());
         contentValues.put(COLUMN_SONG_TITLE, songToAdd.getTitle());
         contentValues.put(COLUMN_SONG_AUTHOR, songToAdd.getAuthor());
         contentValues.put(COLUMN_SONG_ALBUM_NAME, songToAdd.getAlbumName());
@@ -130,7 +140,7 @@ public class PlaylistDatabase implements PlaylistProvider {
 
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(COLUMN_PLAYLIST_TITLE,playlistName);
+        contentValues.put(COLUMN_PLAYLIST_TITLE, playlistName);
         contentValues.put(COLUMN_SONG_TITLE, songToAdd.getTitle());
         contentValues.put(COLUMN_SONG_AUTHOR, songToAdd.getAuthor());
         contentValues.put(COLUMN_SONG_ALBUM_NAME, songToAdd.getAlbumName());
@@ -141,9 +151,6 @@ public class PlaylistDatabase implements PlaylistProvider {
 
         db.insert(TABLE_NAME, null, contentValues);
     }
-
-
-
 
 
 }
