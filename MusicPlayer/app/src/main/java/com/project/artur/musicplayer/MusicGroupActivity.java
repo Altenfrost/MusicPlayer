@@ -1,15 +1,12 @@
 package com.project.artur.musicplayer;
 
-
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import java.util.List;
 
 public class MusicGroupActivity extends AppCompatActivity implements MusicGroupFragment.OnMusicGroupActionListener, SongPlayerFragment.OnSongActionListener {
     private final FragmentManager fm = getSupportFragmentManager();
@@ -18,7 +15,6 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     private Playlist deliveredPlaylist = null;
     private final String PLAYER_KEY = "songPlayer";
     private final String MGROUP_KEY = "musicgroup";
-    private final String ACTUAL_SONG_KEY = "actualSong";
     private MusicGroupFragment musicGroupFragment;
     private SongPlayerFragment songPlayerFragment;
     private Song actualSong;
@@ -46,10 +42,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
         deliveredPlaylist = null;
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
-            System.out.println("JEST PLAYLISTA");
             deliveredPlaylist = intent.getExtras().getParcelable(PlaylistActivity.CHOOSEN_PLAYLIST);
-        }else {
-            System.out.println("NIE MA PLAYLISTY");
         }
 
         setContentView(R.layout.activity_music_group);
@@ -71,7 +64,6 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
             ft.commit();
         }
         if (deliveredPlaylist != null) {
-            System.out.println("DOSTARCZONO PLAYLISTE");
             this.musicGroupFragment.setSongsList(deliveredPlaylist.getSongsInPlaylist());
         }
         setFragmentVisibility();

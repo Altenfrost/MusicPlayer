@@ -27,7 +27,7 @@ public class MusicGroupFragment extends Fragment {
     private List<Song> songsList;
     private OnMusicGroupActionListener onMusicGroupActionListener;
     protected SongsFinderService songsFinderService;
-    
+
 
     public void setSongsList(List<Song> songsList) {
         this.songsList = songsList;
@@ -90,8 +90,6 @@ public class MusicGroupFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        System.out.println("ON CREATE");
-
 
     }
 
@@ -104,6 +102,7 @@ public class MusicGroupFragment extends Fragment {
         if (songsList != null) {
             songAdapter = new SongAdapter(getContext(), songsList);
         } else {
+            isPlaylist = false;
             songsList = AllSongsList.getInstance().getAllSongs();
             songAdapter = new SongAdapter(getContext(), AllSongsList.getInstance().getAllSongs());
         }
@@ -114,7 +113,6 @@ public class MusicGroupFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        System.out.println("ON ACTIVITY CREATED");
         songListView = (ListView) this.getView().findViewById(R.id.song_list);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(LAST_SONG_POS)) {
@@ -122,7 +120,7 @@ public class MusicGroupFragment extends Fragment {
         }
 
         initializeList();
-        if (AllSongsList.getInstance().getAllSongs().size() == 0) {
+        if (AllSongsList.getInstance().getAllSongs().size() == 0 && isPlaylist != true) {
 
             Intent intent = new Intent(this.getActivity(), SongsFinderService.class);
             this.getActivity().bindService(intent, songsFinderConnection, Context.BIND_AUTO_CREATE);

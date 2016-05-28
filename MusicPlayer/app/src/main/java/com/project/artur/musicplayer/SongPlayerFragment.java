@@ -219,10 +219,9 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
             songPlayer.setLooping(true);
             try {
                 songPlayer.setDataSource(getContext(), songToPlay.getFileUri());
+
                 songPlayer.prepare();
                 songPlayer.seekTo(currentPositionInSong);
-                this.songSeekBar.setMax(songPlayer.getDuration());
-                this.songSeekBar.setProgress(currentPositionInSong);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -232,6 +231,8 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
             songPlayer = MediaPlayer.create(getContext(), newSong.getFileUri());
             songPlayer.setLooping(true);
         }
+        this.songSeekBar.setMax(songPlayer.getDuration());
+        this.songSeekBar.setProgress(currentPositionInSong);
         playButton.setText(R.string.play);
 
         setSongDetails();
