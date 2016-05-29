@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
     <string name="add_song_to_playlist_text">Dodaj do playlisty</string>
+    <string name="delete_song_from_playlist_text">Usuń utwór z playlisty</string>
     <string name="music_catalog">Moja muzyka</string>
     <string name="playlist_catalog">Moje playlisty</string>
     <string name="exit">Wyjdź</string>

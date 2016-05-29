@@ -7,6 +7,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import java.util.List;
+
 
 public class MusicGroupActivity extends AppCompatActivity implements MusicGroupFragment.OnMusicGroupActionListener, SongPlayerFragment.OnSongActionListener {
     private final FragmentManager fm = getSupportFragmentManager();
@@ -14,7 +16,8 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     public static boolean IS_LAND = false;
     private Playlist deliveredPlaylist = null;
     private final String PLAYER_KEY = "songPlayer";
-    private final String MGROUP_KEY = "musicgroup";
+    private final String MGROUP_KEY = "musicGroup";
+    private final String PLAYLIST_KEY = "actualPlaylist";
     private MusicGroupFragment musicGroupFragment;
     private SongPlayerFragment songPlayerFragment;
     private Song actualSong;
@@ -26,6 +29,8 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
 
         fm.putFragment(outState, MGROUP_KEY, musicGroupFragment);
         fm.putFragment(outState, PLAYER_KEY, songPlayerFragment);
+        if (deliveredPlaylist != null)
+            outState.putParcelable(PLAYLIST_KEY, deliveredPlaylist);
 
     }
 
@@ -39,11 +44,8 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        deliveredPlaylist = null;
-        Intent intent = getIntent();
-        if (intent != null && intent.getExtras() != null) {
-            deliveredPlaylist = intent.getExtras().getParcelable(PlaylistActivity.CHOOSEN_PLAYLIST);
-        }
+
+        setDeliveredPlaylist(savedInstanceState);
 
         setContentView(R.layout.activity_music_group);
         IS_LAND = getResources().getBoolean(R.bool.isLand);
@@ -65,8 +67,21 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
         }
         if (deliveredPlaylist != null) {
             this.musicGroupFragment.setSongsList(deliveredPlaylist.getSongsInPlaylist());
+            this.songPlayerFragment.setPlaylistTitle(deliveredPlaylist.getPlaylistTitle());
         }
         setFragmentVisibility();
+    }
+
+    private void setDeliveredPlaylist(Bundle savedInstanceState) {
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null && (savedInstanceState == null || !savedInstanceState.containsKey(PLAYLIST_KEY))) {
+            deliveredPlaylist = intent.getExtras().getParcelable(PlaylistActivity.CHOOSEN_PLAYLIST);
+        } else if (isPlaylistPutInInstance(savedInstanceState))
+            deliveredPlaylist = savedInstanceState.getParcelable(PLAYLIST_KEY);
+    }
+
+    private boolean isPlaylistPutInInstance(Bundle savedInstanceState) {
+        return savedInstanceState != null && savedInstanceState.containsKey(PLAYLIST_KEY);
     }
 
     private void setFragmentVisibility() {
@@ -88,9 +103,6 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     }
 
 
-
-
-
     @Override
     public void showSong(Song selectedSong) {
         actualSong = selectedSong;
@@ -102,7 +114,7 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
                     .addToBackStack(null)
                     .commit();
         }
-        this.songPlayerFragment.updateSongInfo(actualSong,0);
+        this.songPlayerFragment.updateSongInfo(actualSong, 0);
     }
 
     @Override
@@ -133,8 +145,21 @@ public class MusicGroupActivity extends AppCompatActivity implements MusicGroupF
     }
 
     @Override
-    public Song getActualSong() {
-        return actualSong;
+    public void deleteSong(Song songToDelete) {
+        updateDataAfterDelete(songToDelete);
+        this.musicGroupFragment.getSongAdapter().notifyDataSetChanged();
+        if (this.musicGroupFragment.getSongAdapter().getSongList().size() == 0)
+            finish();
+        else {
+            this.songPlayerFragment.updateSongInfo(getNextSong(), 0);
+        }
+
+
+    }
+
+    private void updateDataAfterDelete(Song songToDelete) {
+        this.musicGroupFragment.getSongAdapter().getSongList().remove(songToDelete);
+        deliveredPlaylist.getSongsInPlaylist().remove(songToDelete);
     }
 
 

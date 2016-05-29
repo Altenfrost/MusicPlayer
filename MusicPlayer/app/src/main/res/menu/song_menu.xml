@@ -1,12 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainMenuActivity">
+    tools:context=".MusicGroupActivity">
 
     <group android:id="@+id/song_menu_group">
         <item
             android:id="@+id/assign_song_item"
             android:title="@string/add_song_to_playlist_text"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/delete_song_item"
+            android:title="@string/delete_song_from_playlist_text"
+            android:visible="false"
             app:showAsAction="never" />
     </group>
 

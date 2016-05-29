@@ -12,9 +12,9 @@ public interface PlaylistProvider {
 
     List<Playlist> getAllPlaylists();
 
-    void removePlaylist(String playlistName);
+    int removeFromPlaylist(String playlistName, String songToRemoveTitle);
 
-    void addPlaylist(Playlist playlistToAdd);
+    long addPlaylist(Playlist playlistToAdd);
 
-    void addToExistedPlaylist(String playlistName, Song songToAdd);
+    long addToExistedPlaylist(String playlistName, Song songToAdd);
 }

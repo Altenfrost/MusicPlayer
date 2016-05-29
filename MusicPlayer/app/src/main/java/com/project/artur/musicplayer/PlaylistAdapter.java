@@ -22,6 +22,9 @@ public class PlaylistAdapter extends BaseAdapter {
         this.playlistNames = playlistsNames;
     }
 
+    public void setPlaylistNames(List<String> playlistNames) {
+        this.playlistNames = playlistNames;
+    }
 
     @Override
     public int getCount() {

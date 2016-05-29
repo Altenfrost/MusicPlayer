@@ -15,6 +15,16 @@ public class PlaylistActivity extends AppCompatActivity {
     public static final String CHOOSEN_PLAYLIST = "choosenPlaylist";
     private ListView playlistView;
     private PlaylistAdapter playlistAdapter;
+    private PlaylistProvider playlistProvider;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        List<String> actualPlaylistNames = playlistProvider.getPlaylistNames();
+        playlistAdapter.setPlaylistNames(actualPlaylistNames);
+        playlistAdapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +33,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
         playlistView = (ListView) findViewById(R.id.playlist_list);
 
-        final PlaylistProvider playlistProvider = new PlaylistDatabase(this);
+        playlistProvider = new PlaylistDatabase(this);
 
         playlistAdapter = new PlaylistAdapter(this, playlistProvider.getPlaylistNames());
 
@@ -53,4 +63,6 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
     }
+
+
 }

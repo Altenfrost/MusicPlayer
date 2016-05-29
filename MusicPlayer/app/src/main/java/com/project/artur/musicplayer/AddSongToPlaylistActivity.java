@@ -39,7 +39,7 @@ public class AddSongToPlaylistActivity extends Activity {
         if (this.songToAdd == null)
             throw new IllegalArgumentException("No song was selected");
 
-        playlistProvider  = new PlaylistDatabase(this);
+        playlistProvider = new PlaylistDatabase(this);
 
         playlistAdapter = new PlaylistAdapter(getApplicationContext(), playlistProvider.getPlaylistNames());
 
@@ -102,18 +102,28 @@ public class AddSongToPlaylistActivity extends Activity {
         if (playlist != null) {
             if (checkIfSongBelongToPlaylist(playlist))
                 return;
+            long result = playlistProvider.addToExistedPlaylist(playlistToChangeName, songToAdd);
 
+            showResult(result, "Dodano piosenkę do istniejącej kolekcji", "Nie udało się dodać piosenki do istniejącej kolekcji");
 
-            playlistProvider.addToExistedPlaylist(playlistToChangeName, songToAdd);
-            Toast.makeText(this, "Dodano do istniejącej playlisty", Toast.LENGTH_SHORT).show();
             return;
         } else {
             Playlist newPlaylist = createNewPlaylist();
-            playlistProvider.addPlaylist(newPlaylist);
-            Toast.makeText(this, "Utworzono nową playlistę", Toast.LENGTH_SHORT).show();
+
+            long result = playlistProvider.addPlaylist(newPlaylist);
+
+            showResult(result, "Utworzono nową playlistę", "Nie udało się zapisać piosenki do bazy danych");
+
         }
 
         finish();
+    }
+
+    private void showResult(long result, String positiveAnswer, String negativeAnswer) {
+        if (result != -1)
+            Toast.makeText(this, positiveAnswer, Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, negativeAnswer, Toast.LENGTH_SHORT).show();
     }
 
     @NonNull

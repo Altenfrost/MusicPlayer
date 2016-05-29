@@ -30,11 +30,13 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     private OnSongActionListener onSongActionListener;
     public static final String SONG_KEY = "song_key";
     private Song songToPlay;
+    private String playlistTitle;
     private ImageView songAlbum;
     private TextView songDetailsTitle, songDetailsAuthor, songDetailsAlbumTitle, songDetailsBitrate;
     private Button playButton, nextSongButton, previousSongButton, forwardButton, backButton;
     private SeekBar songSeekBar;
     private Thread updateSeekBarTask;
+    private boolean isPlaylist = false;
     private final int SKIP_VALUE = 5000;
     private static MediaPlayer songPlayer;
 
@@ -42,14 +44,20 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
         return songPlayer;
     }
 
+
     public interface OnSongActionListener {
         Song getNextSong();
 
         Song getPreviousSong();
 
-        Song getActualSong();
+        void deleteSong(Song songToDelete);
     }
 
+
+    public void setPlaylistTitle(String playlistTitle) {
+        this.playlistTitle = playlistTitle;
+        isPlaylist = true;
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -168,6 +176,20 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem deleteMenuItem = menu.findItem(R.id.delete_song_item);
+        if (deleteMenuItem != null) {
+            if (isPlaylist == true) {
+                deleteMenuItem.setVisible(true);
+            } else {
+                deleteMenuItem.setVisible(false);
+            }
+        }
+
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
@@ -190,6 +212,17 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
                 return true;
             }
+            case R.id.delete_song_item: {
+                PlaylistProvider playlistProvider = new PlaylistDatabase(this.getContext());
+                int result = playlistProvider.removeFromPlaylist(playlistTitle, songToPlay.getTitle());
+                if (result == 0)
+                    Toast.makeText(this.getContext(), "Usunięto z playlisty", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(this.getContext(), "Udało się usunąć utwór z listy", Toast.LENGTH_LONG).show();
+
+                onSongActionListener.deleteSong(songToPlay);
+
+            }
             default: {
                 return super.onOptionsItemSelected(item);
             }
@@ -209,7 +242,7 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
 
     public void updateSongInfo(Song newSong, int currentPositionInSong) {
-        if (newSong==null)
+        if (newSong == null)
             return;
         songToPlay = newSong;
         if (songPlayer != null) {
@@ -271,7 +304,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
                         }
                     }
                 } while (songPlayer.isPlaying());
-
 
 
             }
@@ -344,17 +376,6 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
     private boolean wasThreadAndSeekBarInitialized() {
         return updateSeekBarTask != null && !updateSeekBarTask.isAlive() && updateSeekBarTask.getState() == Thread.State.NEW;
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
 
     @Override
     public void onResume() {
