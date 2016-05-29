@@ -15,6 +15,10 @@ public class SongDuration implements Parcelable {
 
     public SongDuration(String rawSongDuration) {
         this.rawSongDuration = rawSongDuration;
+        convertToStringData();
+    }
+
+    private void convertToStringData() {
         long dur = Long.parseLong(this.rawSongDuration);
         seconds = String.valueOf((dur % 60000) / 1000);
         if (seconds.length() == 1)

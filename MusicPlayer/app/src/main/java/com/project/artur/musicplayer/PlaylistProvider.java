@@ -10,7 +10,6 @@ public interface PlaylistProvider {
 
     List<String> getPlaylistNames();
 
-    List<Playlist> getAllPlaylists();
 
     int removeFromPlaylist(String playlistName, String songToRemoveTitle);
 

@@ -21,17 +21,11 @@ public class Playlist implements Parcelable {
         return songsInPlaylist;
     }
 
-    public void setSongsInPlaylist(List<Song> songsInPlaylist) {
-        this.songsInPlaylist = songsInPlaylist;
-    }
 
     public String getPlaylistTitle() {
         return playlistTitle;
     }
 
-    public void setPlaylistTitle(String playlistTitle) {
-        this.playlistTitle = playlistTitle;
-    }
 
     protected Playlist(Parcel in) {
         songsInPlaylist = in.createTypedArrayList(Song.CREATOR);

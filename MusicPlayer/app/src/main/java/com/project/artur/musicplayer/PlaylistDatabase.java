@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +43,19 @@ public class PlaylistDatabase implements PlaylistProvider {
         cursor.moveToFirst();
         if (cursor.getCount() == 0)
             return null;
+        List<Song> songsInPlaylist = getAllResultsFromCursor(cursor);
+        cursor.close();
+
+        return new Playlist(songsInPlaylist, playlistName);
+    }
+
+    @NonNull
+    private List<Song> getAllResultsFromCursor(Cursor cursor) {
         List<Song> songsInPlaylist = new ArrayList<>();
         do {
             fetchDataAboutSong(cursor, songsInPlaylist);
         } while (cursor.moveToNext());
-        cursor.close();
-
-        return new Playlist(songsInPlaylist, playlistName);
+        return songsInPlaylist;
     }
 
     private void fetchDataAboutSong(Cursor cursor, List<Song> songsInPlaylist) {
@@ -93,18 +100,6 @@ public class PlaylistDatabase implements PlaylistProvider {
 
     }
 
-    @Override
-    public List<Playlist> getAllPlaylists() {
-        List<String> allPlaylistsNames = getPlaylistNames();
-        List<Playlist> allPlaylists = new ArrayList<>();
-
-        for (String playlistName : allPlaylistsNames) {
-            Playlist playlistFound = getPlaylist(playlistName);
-            allPlaylists.add(playlistFound);
-
-        }
-        return allPlaylists;
-    }
 
     @Override
     public int removeFromPlaylist(String playlistName, String songToRemoveTitle) {
@@ -122,25 +117,30 @@ public class PlaylistDatabase implements PlaylistProvider {
 
         Song songToAdd = playlistToAdd.getSongsInPlaylist().get(0);
 
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(COLUMN_PLAYLIST_TITLE, playlistToAdd.getPlaylistTitle());
-        contentValues.put(COLUMN_SONG_TITLE, songToAdd.getTitle());
-        contentValues.put(COLUMN_SONG_AUTHOR, songToAdd.getAuthor());
-        contentValues.put(COLUMN_SONG_ALBUM_NAME, songToAdd.getAlbumName());
-        contentValues.put(COLUMN_SONG_DURATION, songToAdd.getSongDuration().getRawSongDuration());
-        contentValues.put(COLUMN_SONG_FILE_URI, songToAdd.getFileUri().toString());
-        contentValues.put(COLUMN_SONG_PATH, songToAdd.getFilePath());
-        contentValues.put(COLUMN_SONG_BITRATE, songToAdd.getBitRate());
+        ContentValues contentValues = fillValuesToInsert(playlistToAdd, songToAdd);
 
         long result = db.insert(TABLE_NAME, null, contentValues);
         return result;
+    }
+
+    @NonNull
+    private ContentValues fillValuesToInsert(Playlist playlistToAdd, Song songToAdd) {
+        ContentValues contentValues = fillValuesToInsert(playlistToAdd.getPlaylistTitle(), songToAdd);
+        return contentValues;
     }
 
     @Override
     public long addToExistedPlaylist(String playlistName, Song songToAdd) {
         SQLiteDatabase db = playlistDbHelper.getWritableDatabase();
 
+        ContentValues contentValues = fillValuesToInsert(playlistName, songToAdd);
+
+        long result = db.insert(TABLE_NAME, null, contentValues);
+        return result;
+    }
+
+    @NonNull
+    private ContentValues fillValuesToInsert(String playlistName, Song songToAdd) {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put(COLUMN_PLAYLIST_TITLE, playlistName);
@@ -151,9 +151,7 @@ public class PlaylistDatabase implements PlaylistProvider {
         contentValues.put(COLUMN_SONG_FILE_URI, songToAdd.getFileUri().toString());
         contentValues.put(COLUMN_SONG_PATH, songToAdd.getFilePath());
         contentValues.put(COLUMN_SONG_BITRATE, songToAdd.getBitRate());
-
-        long result = db.insert(TABLE_NAME, null, contentValues);
-        return result;
+        return contentValues;
     }
 
 

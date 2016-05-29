@@ -61,10 +61,7 @@ public class SongsFinderService extends Service {
                     Cursor cursor = getContentResolver().query(uri,
                             projection, selection, null, null);
 
-                    if (cursor.getCount() == 0) {
-                        System.out.println("Nie znaleziono żadnej piosenki");
-
-                    } else {
+                    if (cursor.getCount() != 0) {
                         List<Song> songsFound = new ArrayList<>();
                         cursor.moveToFirst();
                         do {

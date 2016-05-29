@@ -25,9 +25,6 @@ public class PlaylistDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    public PlaylistDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
-    }
 
     public PlaylistDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

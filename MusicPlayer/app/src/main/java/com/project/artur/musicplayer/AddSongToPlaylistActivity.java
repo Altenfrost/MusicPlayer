@@ -104,7 +104,7 @@ public class AddSongToPlaylistActivity extends Activity {
                 return;
             long result = playlistProvider.addToExistedPlaylist(playlistToChangeName, songToAdd);
 
-            showResult(result, "Dodano piosenkę do istniejącej kolekcji", "Nie udało się dodać piosenki do istniejącej kolekcji");
+            showResult(result, getResources().getString(R.string.insert_song_operation_success), getResources().getString(R.string.insert_song_operation_failed));
 
             return;
         } else {
@@ -112,7 +112,7 @@ public class AddSongToPlaylistActivity extends Activity {
 
             long result = playlistProvider.addPlaylist(newPlaylist);
 
-            showResult(result, "Utworzono nową playlistę", "Nie udało się zapisać piosenki do bazy danych");
+            showResult(result, getResources().getString(R.string.new_playlist_create_success), getResources().getString(R.string.new_playlist_create_failed));
 
         }
 
@@ -136,7 +136,7 @@ public class AddSongToPlaylistActivity extends Activity {
     private boolean checkIfSongBelongToPlaylist(Playlist playlist) {
         for (Song songInPlaylist : playlist.getSongsInPlaylist()) {
             if (songInPlaylist.getTitle().equals(songToAdd.getTitle())) {
-                Toast.makeText(this, "Ta piosenka już jest w tej playliście!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.that_song_exist_in_playlist_info, Toast.LENGTH_SHORT).show();
                 return true;
             }
         }

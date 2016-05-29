@@ -14,9 +14,8 @@ public class AllSongsList {
     private AllSongsList() {
     }
 
-    public static AllSongsList getInstance(){
-        if(allSongsListInstance == null)
-        {
+    public static AllSongsList getInstance() {
+        if (allSongsListInstance == null) {
             allSongsListInstance = new AllSongsList();
             allSongsListInstance.setAllSongs(new ArrayList<Song>());
         }

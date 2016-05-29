@@ -64,12 +64,12 @@ public class MusicGroupFragment extends Fragment {
     };
 
     public Song getNextSongInList() {
-        lastSongPos = (lastSongPos + 1 == songsList.size()) ? 0 : lastSongPos + 1;
+        lastSongPos = (lastSongPos + 1 >= songAdapter.getSongList().size()) ? 0 : lastSongPos + 1;
         return songAdapter.getItem(lastSongPos);
     }
 
     public Song getPreviousSongInList() {
-        lastSongPos = (lastSongPos - 1 < 0) ? songsList.size() - 1 : lastSongPos - 1;
+        lastSongPos = (lastSongPos - 1 < 0) ? songAdapter.getSongList().size() - 1 : lastSongPos - 1;
         return songAdapter.getItem(lastSongPos);
 
     }

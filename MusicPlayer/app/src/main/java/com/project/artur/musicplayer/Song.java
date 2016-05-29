@@ -85,24 +85,6 @@ public class Song implements Parcelable {
         return filePath;
     }
 
-    /*public Song(File source) {
-        this.source = source;
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-
-        metaRetriever.setDataSource(this.source.getPath());
-        this.title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        this.author = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR);
-        this.bitRate = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
-        this.albumName = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        this.songDuration = new SongDuration(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
-
-        this.albumPhotoBytes = metaRetriever.getEmbeddedPicture();
-
-        metaRetriever.release();
-
-    }*/
-
 
     public void setAlbumPhoto(Bitmap albumPhoto) {
         this.albumPhoto = albumPhoto;

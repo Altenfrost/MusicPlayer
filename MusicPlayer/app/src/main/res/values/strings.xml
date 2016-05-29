@@ -21,5 +21,12 @@
     <string name="insert_new_playlist_text">Możesz też wprowadzić nową playlistę</string>
     <string name="confirm_new_playlist_name">Zatwierdź nazwę nowej playlisty</string>
     <string name="playlist_operation_summary">Podsumowanie: </string>
-
+    <string name="that_song_exist_in_playlist_info">Ta piosenka istnieje już w tej playliście</string>
+    <string name="no_song_choose_info">Nie wybrałeś żadnej piosenki!</string>
+    <string name="delete_song_operation_failed">Nie udało się usunąć z utworu z playlisty</string>
+    <string name="delete_song_operation_success">Udało się usunąć utwór z playlisty</string>
+    <string name="insert_song_operation_failed">Nie udało się usunąć z utworu z playlisty</string>
+    <string name="insert_song_operation_success">Dodano piosenkę do istniejącej playlisty</string>
+    <string name="new_playlist_create_success">Utworzono nową playlistę</string>
+    <string name="new_playlist_create_failed">Nie udało się zapisać piosenki do bazy danych</string>
 </resources>

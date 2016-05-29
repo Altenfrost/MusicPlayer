@@ -1,6 +1,7 @@
 package com.project.artur.musicplayer;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -46,22 +47,20 @@ public class PlaylistActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(), MusicGroupActivity.class);
                 Playlist playlistChoosen = playlistProvider.getPlaylist(selectedPlaylist);
-                /*List<Song> songsInChoosenPlaylist = new ArrayList<Song>();
-                for (Song songInPlaylist: playlistChoosen.getSongsInPlaylist()){
-                    songsInChoosenPlaylist.
-                }*/
 
                 intent.putExtra(CHOOSEN_PLAYLIST, playlistChoosen);
                 startActivity(intent);
-                /*playlistToChangeName = selectedPlaylist;
-
-                summary.setText(infoAboutSong + " \n Wybrana playlista:" + playlistToChangeName);*/
+                clearSongPlayer();
             }
 
         });
-        List<Playlist> playlists = playlistProvider.getAllPlaylists();
 
 
+    }
+
+    private void clearSongPlayer() {
+        if (SongPlayerFragment.getSongPlayer() != null)
+            SongPlayerFragment.getSongPlayer().reset();
     }
 
 

@@ -54,11 +54,15 @@ public class PlaylistAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) playlistView.getTag();
 
         }
-        viewHolder.playlistTitle = (TextView) playlistView.findViewById(R.id.playlist_title);
-        viewHolder.playlistTitle.setText(this.playlistNames.get(position));
+        bindPlaylistToView(position, viewHolder, playlistView);
 
         return playlistView;
 
+    }
+
+    private void bindPlaylistToView(int position, ViewHolder viewHolder, View playlistView) {
+        viewHolder.playlistTitle = (TextView) playlistView.findViewById(R.id.playlist_title);
+        viewHolder.playlistTitle.setText(this.playlistNames.get(position));
     }
 
 

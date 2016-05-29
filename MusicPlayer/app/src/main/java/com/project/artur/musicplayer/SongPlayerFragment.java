@@ -191,42 +191,45 @@ public class SongPlayerFragment extends Fragment implements View.OnClickListener
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        if (songToPlay == null) {
+            Toast.makeText(getContext(), R.string.no_song_choose_info, Toast.LENGTH_SHORT).show();
+            return false;
+        }
         switch (item.getItemId()) {
             case R.id.assign_song_item: {
-                if (songToPlay == null) {
-                    Toast.makeText(getContext(), "Nie wybrałeś żadnej piosenki!", Toast.LENGTH_SHORT).show();
-                    return false;
-                } else {
-                    if (songPlayer.isPlaying())
-                        songPlayer.stop();
+
+                if (songPlayer.isPlaying())
+                    songPlayer.stop();
 
 
-                    Intent intent = new Intent(this.getContext(), AddSongToPlaylistActivity.class);
-                    Bitmap temp = optimizeSong();
-                    intent.putExtra(SONG_KEY, songToPlay);
-                    startActivity(intent);
-                    returnToDefaultSongDataState(temp);
-                }
+                Intent intent = new Intent(this.getContext(), AddSongToPlaylistActivity.class);
+                Bitmap temp = optimizeSong();
+                intent.putExtra(SONG_KEY, songToPlay);
+                startActivity(intent);
+                returnToDefaultSongDataState(temp);
 
 
-                return true;
+                break;
             }
             case R.id.delete_song_item: {
+                if (songPlayer!=null && songPlayer.isPlaying())
+                    songPlayer.stop();
+
                 PlaylistProvider playlistProvider = new PlaylistDatabase(this.getContext());
                 int result = playlistProvider.removeFromPlaylist(playlistTitle, songToPlay.getTitle());
                 if (result == 0)
-                    Toast.makeText(this.getContext(), "Usunięto z playlisty", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this.getContext(), R.string.delete_song_operation_failed, Toast.LENGTH_LONG).show();
                 else
-                    Toast.makeText(this.getContext(), "Udało się usunąć utwór z listy", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this.getContext(), R.string.delete_song_operation_success, Toast.LENGTH_LONG).show();
 
                 onSongActionListener.deleteSong(songToPlay);
-
+                break;
             }
             default: {
                 return super.onOptionsItemSelected(item);
             }
         }
+        return true;
 
     }
 
